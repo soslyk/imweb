@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WOM 페이지</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .message {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="message" class="message"></div>
+    <div><img id="poster" src="" alt="웜 포스터 이미지" /></div>
+    <div><img id="workout" src="" alt="웜 운동 이미지" style="display:none;" /></div>
+  </div>
+
+  <script>
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbyXd6RkyJym3mS1-qbh4w47SdWy8mpVVpRZCCcCOPhjT5KLndMZ7y57qAied4Fv5jA0bQ/exec'; // 구글시트 웹 앱 URL
+
+    function getKoreanDateStr(date) {
+      const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+      return `${date.getMonth() + 1}월 ${date.getDate()}일 ${weekdays[date.getDay()]}`;
+    }
+
+    fetch(sheetUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('message').innerText = '표시할 웜 정보가 없습니다.';
+          console.error('No data available from sheet.');
+          document.getElementById('poster').src = '';
+          const workoutImg = document.getElementById('workout');
+          workoutImg.style.display = 'none';
+          workoutImg.src = '';
+          return;
+        }
+
+        // 현재 한국 시간 (GMT+9)으로 Date 객체 생성
+        const now = new Date();
+        const nowKST = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC → KST
+
+        let active = null;
+
+        for (let i = 0; i < data.length; i++) {
+          const dateStr = data[i].date.slice(0, 10); // YYYY-MM-DD
+          const dday = new Date(`${dateStr}T00:00:00+09:00`);
+          const revealDate = new Date(dday);
+          revealDate.setDate(dday.getDate() - 3);
+
+          if (nowKST >= revealDate && nowKST <= dday) {
+            active = { ...data[i], phase: 'reveal', dday, revealDate };
+            break;
+          } else if (nowKST < revealDate) {
+            active = { ...data[i], phase: 'posterOnly', dday, revealDate };
+            break;
+          }
+        }
+
+        if (!active && data.length > 0) {
+          const last = data[data.length - 1];
+          const lastDateStr = last.date.slice(0, 10);
+          active = { ...last, phase: 'posterOnly', dday: new Date(`${lastDateStr}T00:00:00+09:00`) };
+        }
+
+        const msg = document.getElementById('message');
+        const poster = document.getElementById('poster');
+        const workout = document.getElementById('workout');
+
+        if (active) {
+          poster.src = active.poster_url;
+
+          if (active.phase === 'reveal') {
+            msg.innerText = `${getKoreanDateStr(active.dday)} WOM와드 공개 🔥\n와드 설명은 카페에 곧 게시됩니다.📝`;
+            if (active.workout_url) {
+              workout.src = active.workout_url;
+              workout.style.display = 'block';
+            } else {
+              workout.style.display = 'none';
+              workout.src = '';
+            }
+          } else {
+            msg.innerText = `📣 ${getKoreanDateStr(active.revealDate)}에 공개됩니다!`;
+            workout.style.display = 'none';
+            workout.src = '';
+          }
+        } else {
+          poster.src = '';
+          workout.style.display = 'none';
+          workout.src = '';
+          msg.innerText = '표시할 웜 정보가 없습니다.';
+          console.error('No active WOM entry found.');
+        }
+      });
+  </script>
+</body>
+</html>

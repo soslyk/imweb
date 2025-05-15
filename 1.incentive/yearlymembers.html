@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>유효 회원수 비교</title>
+    <style>
+        .result-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #FFFFFF;
+            color: #333D4B;
+            border-radius: 12px;
+            padding: 10px;
+            font-family: "Pretendard", sans-serif;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            background-color: #F0F0F0;
+            border-radius: 8px;
+            padding: 4px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toggle-button {
+            border: none;
+            background: transparent;
+            color: #555555;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.3s, color 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            flex-grow: 1;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .toggle-button.active {
+            background: #FEE500;
+            color: var(--kakao-black);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <div class="toggle-container" id="branch-buttons">
+            <button class="toggle-button active" data-branch="상무점">상무점</button>
+            <button class="toggle-button active" data-branch="신창점">신창점</button>
+            <button class="toggle-button active" data-branch="오치점">오치점</button>
+        </div>
+    </div>
+    <div class="result-container">
+        <div class="toggle-container" id="year-buttons">
+            <button class="toggle-button active" data-year="2024">2024년</button>
+            <button class="toggle-button active" data-year="2025">2025년</button>
+        </div>
+    </div>
+    <div>
+        <canvas id="memberChart" style="height: 600px;"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+    <script>
+        const branchButtons = document.querySelectorAll('#branch-buttons .toggle-button');
+        const yearButtons = document.querySelectorAll('#year-buttons .toggle-button');
+        const chartCanvas = document.getElementById('memberChart');
+        let memberChart;
+        let allData = [];
+
+        const dataUrl2024 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfS6FBJfF9AYWutnEAfbY0TYKwcKSfhXW30MZ3A0tZnjVoMIETs-ggkJ6GLeeRseFpWM53-cqiSmLU/pub?gid=1293114069&single=true&output=csv';
+        const dataUrl2025 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pub?gid=1293114069&single=true&output=csv';
+
+        function getDataUrl(year) {
+            return year === 2024 ? dataUrl2024 : dataUrl2025;
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(header => header.trim());
+            const branchNames = headers.slice(1);
+
+            return lines.slice(1).flatMap(line => {
+                const values = line.split(',');
+                const rawDate = values[0]?.trim();
+                if (!rawDate) return [];
+
+                const isoDate = rawDate.includes('.') ? rawDate.replace(/\./g, '-').trim() : rawDate.trim();
+                const dateObj = new Date(isoDate);
+                const now = new Date();
+
+                return branchNames.map((branch, index) => {
+                    const rawValue = values[index + 1]?.trim();
+                    const memberCount = dateObj > now ? null : (parseInt(rawValue) || 0);
+                    const adjustedDate = new Date(dateObj);
+                    if (dateObj.getFullYear() === 2025) {
+                        adjustedDate.setFullYear(2024);
+                    }
+                    return {
+                        날짜: adjustedDate.toISOString(),
+                        원래날짜: dateObj.toISOString(),
+                        지점명: branch,
+                        연도: dateObj.getFullYear(),
+                        유효회원수: memberCount
+                    };
+                });
+            });
+        }
+
+        function getSelectedFilters() {
+            const selectedBranches = Array.from(branchButtons)
+                .filter(btn => btn.classList.contains('active'))
+                .map(btn => btn.dataset.branch);
+            const selectedYears = Array.from(yearButtons)
+                .filter(btn => btn.classList.contains('active'))
+                .map(btn => parseInt(btn.dataset.year));
+            return { selectedBranches, selectedYears };
+        }
+
+        function filterData(selectedBranches, selectedYears) {
+            return allData.filter(item =>
+                selectedBranches.includes(item.지점명) &&
+                selectedYears.includes(item.연도)
+            );
+        }
+
+        function getColorByKey(branch, year) {
+            const baseHue = branch === '상무점' ? 120 : (branch === '신창점' ? 220 : 300); // 초록, 파랑, 보라 계열
+            const lightness = year === 2024 ? 80 : 40; // 2024년이 더 밝게, 2025년이 더 진하게
+            return `hsl(${baseHue}, 70%, ${lightness}%)`;
+        }
+
+        function updateChart(filteredData) {
+            const { selectedBranches, selectedYears } = getSelectedFilters();
+            const datasets = [];
+
+            selectedBranches.forEach(branch => {
+                selectedYears.forEach(year => {
+                    const data = filteredData
+                        .filter(item => item.지점명 === branch && item.연도 === year)
+                        .map(item => ({
+                            x: item.날짜,
+                            y: item.유효회원수,
+                            원래날짜: item.원래날짜
+                        }))
+                        .sort((a, b) => new Date(a.원래날짜) - new Date(b.원래날짜));
+
+                    if (year === 2025) {
+                        const validData = [];
+                        for (const point of data) {
+                            if (point.y === null || point.y === 0) break;
+                            validData.push(point);
+                        }
+                        if (validData.length > 0) {
+                            const key = `${branch}-${year}`;
+                            datasets.push({
+                                label: key,
+                                data: validData,
+                                borderColor: getColorByKey(branch, year),
+                                backgroundColor: getColorByKey(branch, year),
+                                fill: false,
+                                tension: 0.5,
+                                borderWidth: 8,
+                                pointRadius: 0,
+                                pointHoverRadius: 6,
+                                pointHitRadius: 10
+                            });
+                        }
+                    } else {
+                        if (data.length > 0) {
+                            const key = `${branch}-${year}`;
+                            datasets.push({
+                                label: key,
+                                data,
+                                borderColor: getColorByKey(branch, year),
+                                backgroundColor: getColorByKey(branch, year),
+                                fill: false,
+                                tension: 0.5,
+                                borderWidth: 6,
+                                pointRadius: 0,
+                                pointHoverRadius: 6,
+                                pointHitRadius: 10
+                            });
+                        }
+                    }
+                });
+            });
+
+            if (memberChart) memberChart.destroy();
+
+            const ctx = chartCanvas.getContext('2d');
+            memberChart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets },
+                options: {
+                    parsing: {
+                        xAxisKey: 'x',
+                        yAxisKey: 'y'
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MM월'
+                                },
+                                tooltipFormat: 'yyyy-MM-dd'
+                            },
+                            min: '2024-01-01',
+                            max: '2024-12-31',
+                            title: { display: false },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                drawBorder: true,
+                                drawOnChartArea: true,
+                                drawTicks: true
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 220,
+                            ticks: {
+                                stepSize: 20,
+                                precision: 0
+                            },
+                            title: { display: true, text: '유효 회원수' },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const dataPoint = context[0].raw;
+                                    return new Date(dataPoint.원래날짜).toLocaleDateString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadInitialData() {
+            const initialYears = Array.from(yearButtons)
+                .filter(btn => btn.classList.contains('active'))
+                .map(btn => parseInt(btn.dataset.year));
+
+            Promise.all(initialYears.map(year =>
+                fetch(getDataUrl(year))
+                    .then(res => res.text())
+                    .then(parseCSV)
+            )).then(dataArrays => {
+                allData = dataArrays.flat();
+                const { selectedBranches, selectedYears } = getSelectedFilters();
+                const filteredData = filterData(selectedBranches, selectedYears);
+                updateChart(filteredData);
+            }).catch(error => {
+                console.error('데이터를 불러오는 데 실패했습니다:', error);
+            });
+        }
+
+        branchButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                const { selectedBranches, selectedYears } = getSelectedFilters();
+                const filteredData = filterData(selectedBranches, selectedYears);
+                updateChart(filteredData);
+            });
+        });
+
+        yearButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                loadInitialData();
+            });
+        });
+
+        loadInitialData();
+    </script>
+</body>
+</html>

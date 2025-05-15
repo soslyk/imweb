@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>종합현황 차트</title>
+
+<style>
+  /* 카카오톡 색상 변수 정의 */
+  :root {
+    --kakao-yellow: #FEE500;
+    --kakao-black: #000000;
+    --kakao-gray: #666666;
+  }
+
+  .grid-container {
+    display: flex; /* 플렉스 컨테이너로 설정 */
+    flex-wrap: wrap; /* 아이템이 넘칠 경우 줄바꿈 */
+    gap: 15px; /* 그리드 아이템 간격 */
+    padding: 10px; /* 컨테이너 내부 여백 */
+    max-width: 1300px; /* 최대 너비 제한 */
+    margin: 0 auto; /* 가운데 정렬 */
+    justify-content: center; /* 수평 중앙 정렬 */
+  }
+  
+  /* PC 화면용 iframe 컨테이너 스타일 */
+  .iframe-container {
+    flex: 1 2 calc(40% - 20px); /* 너비 40%로 설정 (2:1 비율로 줄바꿈) */
+    min-width: 480px; /* 최소 너비 480px로 설정 */
+    height: 450px; /* 고정 높이 450px */
+    position: relative; /* 내부 iframe 배치 기준점 */
+    display: flex; /* 플렉스 컨테이너로 설정 */
+    justify-content: center; /* 수평 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */    
+  }
+
+  /* PC 화면용 iframe 스타일 */
+  .iframe-container iframe {
+    transform: scale(1.1); /* 110% 크기로 확대 */
+    position: absolute; /* 절대 위치 설정 */
+    top: 0;
+    left: 0;
+    width: 90%; /* 부모 요소 기준 90% 너비 */
+    height: 90%; /* 부모 요소 기준 90% 높이 */    
+    border: none; /* 테두리 제거 */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* 그림자 효과 */
+    border-radius: 8px; /* 모서리 둥글게 */
+    object-fit: contain; /* 비율 유지하며 맞춤 */
+    transform-origin: 0 0; /* transform의 기준점을 좌상단으로 설정 */
+  }
+
+  /* 모바일 화면용 스타일 (767px 이하) */
+  @media (max-width: 767px) {
+    .grid-container {      
+      gap: 50px; /* 모바일에서 간격 50px로 증가 */
+      padding: 10px; /* 모바일에서 패딩 10px로 설정 */
+    }
+
+    /* 모바일 화면용 iframe 컨테이너 스타일 */
+    .iframe-container {
+      flex: 1 1 100%; /* 전체 너비 사용 (한 줄에 하나씩) */
+      height: 250px; /* 높이 250px로 축소 */
+      min-width: 250px; /* 최소 너비 250px로 축소 */
+    }
+
+    /* 모바일 화면용 iframe 스타일 */
+    .iframe-container iframe {
+      transform: scale(0.75); /* 75% 크기로 축소 */
+      width: 133%; /* 축소로 인해 잘리지 않도록 너비 133%로 확장 */
+      height: 155%; /* 축소로 인해 잘리지 않도록 높이 155%로 확장 */
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="grid-container">
+    <div class="iframe-container">
+      <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=1403897787&amp;format=interactive"></iframe>
+    </div>
+    <div class="iframe-container">
+      <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=1680872178&amp;format=interactive"></iframe>
+    </div>
+    <div class="iframe-container">
+      <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=605938016&amp;format=interactive"></iframe>
+    </div>
+    <div class="iframe-container">
+      <iframe seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pubchart?oid=843867071&amp;format=interactive"></iframe>
+    </div>
+  </div>
+  <script>
+  document.querySelectorAll('.iframe-container').forEach(container => {
+    const iframe = container.querySelector('iframe');
+  });
+  </script>
+</body>
+</html>
