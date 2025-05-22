@@ -1,3 +1,4 @@
+<!-- ✅ 버튼 ID에 따라 불러올 페이지 URL 정의 https://soslyk.github.io/imweb/2.wom/wom_auto.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -109,7 +110,7 @@
     const swUrl = URL.createObjectURL(blob);
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/imweb/2.wom/sw.js', { scope: '/imweb/2.wom/' })
+        .register('sw.js', { scope: './' })
         .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.error('SW registration failed:', err));
     }
@@ -198,9 +199,9 @@
       }
       workoutEl.src          = workoutBody;
       workoutEl.style.display = 'block';
-      captionEl.textContent   = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 (${weekdays[eventDate.getDay()]}) WOM 공개 🔥`;
+      captionEl.textContent   = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 [${weekdays[eventDate.getDay()]}] WOM 공개 🔥`;
     } else {
-      captionEl.textContent = `📣 ${revealStart.getMonth()+1}월 ${revealStart.getDate()}일 (${weekdays[revealStart.getDay()]}) WOM 공개 예정`;
+      captionEl.textContent = `📣 ${revealStart.getMonth()+1}월 ${revealStart.getDate()}일 [${weekdays[revealStart.getDay()]}] WOM 공개 예정`;
     }
   })();
   </script>
