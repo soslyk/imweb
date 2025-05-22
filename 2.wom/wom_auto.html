@@ -6,7 +6,7 @@
   <title>WOM Event</title>
   <style>
     .wom-container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 2rem auto;
       text-align: center;
       position: relative;
@@ -15,7 +15,7 @@
     .wom-container img {
       width: 100%;
       border-radius: 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       opacity: 0;
       transition: opacity 0.4s ease;
       margin-bottom: 0.5rem;
@@ -199,9 +199,9 @@
       }
       workoutEl.src          = workoutBody;
       workoutEl.style.display = 'block';
-      captionEl.textContent   = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 [${weekdays[eventDate.getDay()]}] WOM 공개 🔥`;
+      captionEl.textContent   = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 ${weekdays[eventDate.getDay()]} WOM와드 공개 🔥`;
     } else {
-      captionEl.textContent = `📣 ${revealStart.getMonth()+1}월 ${revealStart.getDate()}일 [${weekdays[revealStart.getDay()]}] WOM 공개 예정`;
+      captionEl.textContent = `📣 ${revealStart.getMonth()+1}월 ${revealStart.getDate()}일 ${weekdays[revealStart.getDay()]}에 공개됩니다!`;
     }
   })();
   </script>
