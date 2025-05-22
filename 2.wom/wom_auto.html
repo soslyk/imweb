@@ -1,4 +1,3 @@
-<!-- 파일: wom_auto.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -70,7 +69,7 @@
     const workoutEl = document.getElementById('wom-workout');
     const captionEl = document.getElementById('wom-caption');
 
-    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyS4rAtqCaRJs8hD0L16qYaFiWCAjyMJsfjN1KM5mLAmKKPftacsLhso70ovhDjQ-ot/exec';
+    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbzCDDZvGPdSU0WsjnLmxwcIpSU7M-CCE_hMkMHh3dbwAuj9TAEfxUbY0_M7nvEOQVeM/exec';
     const CACHE_KEY = 'wom_manifest_cache';
     const CACHE_TTL = 3600 * 1000; // 1시간
 
@@ -106,11 +105,11 @@
         );
       });
     `;
-    const blob      = new Blob([swCode], { type: 'application/javascript' });
-    const swUrl     = URL.createObjectURL(blob);
+    const blob  = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register(swUrl, { scope: './' })
+        .register('/imweb/2.wom/sw.js', { scope: '/imweb/2.wom/' })
         .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.error('SW registration failed:', err));
     }
@@ -197,7 +196,7 @@
         captionEl.textContent = '⚠️ 운동 이미지를 불러오는 중 오류가 발생했습니다.';
         return;
       }
-      workoutEl.src     = workoutBody;
+      workoutEl.src          = workoutBody;
       workoutEl.style.display = 'block';
       captionEl.textContent   = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 (${weekdays[eventDate.getDay()]}) WOM 공개 🔥`;
     } else {
