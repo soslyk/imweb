@@ -1,4 +1,4 @@
-<!-- WOM 페이지 자동화용 프론트엔드 -->
+<!-- WOM 페이지 자동화 프론트엔드 (개선버전) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,21 +10,24 @@
       margin: 2rem auto;
       text-align: center;
       font-family: 'Apple SD Gothic Neo', sans-serif;
+      position: relative;
     }
     .wom-container img {
       width: 100%;
       border-radius: 1rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: opacity 0.4s ease;
       margin-bottom: 0.5rem;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+    }
+    .wom-container img.visible {
+      opacity: 1;
     }
     .wom-container p {
       margin-top: 0.5rem;
-      font-size: 1rem;
+      font-size: 24px;
+      font-weight: bold;
       color: #333;
-    }
-    .wom-container {
-      position: relative; /* make container positioning context */
     }
     .loading-overlay {
       position: absolute;
@@ -36,7 +39,7 @@
     }
     .loader {
       border: 8px solid #f3f3f3;
-      border-top: 8px solid #1F3EF5; /* kakao-yellow */
+      border-top: 8px solid #1F3EF5;
       border-radius: 50%;
       width: 60px; height: 60px;
       animation: spin 1s linear infinite;
@@ -47,8 +50,13 @@
       display: none;
     }
     @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
+      0% { transform: translate(-50%, -50%) rotate(0deg);}
+      100% { transform: translate(-50%, -50%) rotate(360deg);}
+    }
+    .fallback-text {
+      color: #999;
+      font-size: 18px;
+      margin: 1rem 0;
     }
   </style>
 </head>
@@ -57,73 +65,126 @@
     <div class="loading-overlay"></div>
     <div class="loader"></div>
     <p id="wom-caption"></p>
-    <img id="wom-poster" alt="WOM Poster" />
+    <img id="wom-poster" alt="WOM Poster" style="display:none;" />
     <img id="wom-workout" alt="WOM Workout" style="display:none;" />
+    <div id="fallback-text" class="fallback-text" style="display:none;"></div>
   </div>
-
   <script>
+    // ★ 백엔드 Apps Script URL
+    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyL5a4AUuPnxI5qt0gNav_a7LpGsm5oBgGFZHtjojQ-3NH5QBgqLtrxomCxcVVSGiaV/exec';
+    const CACHE_KEY = 'wom_manifest_cache';
+    const CACHE_TTL = 3600 * 1000; // 1시간(ms)
+
+    const overlay = document.querySelector('.loading-overlay');
+    const loader  = document.querySelector('.loader');
+    const fallbackEl = document.getElementById('fallback-text');
+
+    function showLoading(show) {
+      overlay.style.display = show ? 'block' : 'none';
+      loader.style.display = show ? 'block' : 'none';
+    }
+
+    // 이미지 로딩 실패 시 안내문구/대체이미지 노출
+    function setImageError(imgEl, type = 'poster') {
+      imgEl.style.display = 'none';
+      fallbackEl.style.display = 'block';
+      if(type === 'poster'){
+        fallbackEl.textContent = '포스터 이미지가 준비 중입니다.';
+      } else {
+        fallbackEl.textContent = 'WOM 운동 이미지가 아직 공개되지 않았습니다.';
+      }
+    }
+
     (async () => {
-      const overlay = document.querySelector('.loading-overlay');
-      const loader = document.querySelector('.loader');
-      overlay.style.display = 'block';
-      loader.style.display = 'block';
+      showLoading(true);
 
-      // 1) 현재 한국시간
-      const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+      // 1) 서버 시간 가져오기 (Apps Script에서 now=true 지원)
+      let now;
+      try {
+        const nowRes = await fetch(`${PROXY_URL}?now=true`);
+        const nowJson = await nowRes.json();
+        now = new Date(nowJson.now);
+      } catch(e){
+        now = new Date(); // fallback (브라우저 시간)
+      }
 
-      // 2) 웹앱 프록시 URL
-      const PROXY_URL = 'https://script.google.com/macros/s/AKfycbyL5a4AUuPnxI5qt0gNav_a7LpGsm5oBgGFZHtjojQ-3NH5QBgqLtrxomCxcVVSGiaV/exec';
+      // 2) manifest 가져오기 (localStorage 캐시)
+      async function fetchManifest() {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const { keys, ts } = JSON.parse(raw);
+          if (Date.now() - ts < CACHE_TTL) return keys;
+        }
+        const keys = await fetch(`${PROXY_URL}?manifest=true`).then(res => res.json());
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ keys, ts: Date.now() }));
+        return keys;
+      }
 
-      // 3) manifest 가져오기 (폴더 파일명 기반 dateKey 목록)
-      const dates = await fetch(`${PROXY_URL}?manifest=true`).then(r => r.json());
+      const keys = await fetchManifest();
 
-      // 4) 오늘에 해당하는 이벤트 찾기
+      // 3) 날짜 계산
       let dateKey = null, eventDate = null, revealStart = null, showWorkout = false;
-      for (let key of dates) {
+      for (const key of keys) {
         const yy = 2000 + Number(key.slice(0,2));
         const mm = Number(key.slice(2,4)) - 1;
         const dd = Number(key.slice(4,6));
-        const ed = new Date(Date.UTC(yy, mm, dd, 0, 0, 0));
-        ed.setHours(ed.getHours() + 9);  // KST 자정
+        const ed = new Date(yy, mm, dd, 0,0,0);
         const rs = new Date(ed);
-        rs.setDate(rs.getDate() - 3);   // 공개 시작 시점
-
+        rs.setDate(ed.getDate() - 3);
         if (now >= rs && now <= ed) {
-          dateKey = key;
-          eventDate = ed;
-          revealStart = rs;
-          showWorkout = true;
+          dateKey = key; eventDate = ed; revealStart = rs; showWorkout = (now.toDateString() === ed.toDateString());
           break;
         }
-        if (now < rs && !dateKey) {
-          dateKey = key;
-          eventDate = ed;
-          revealStart = rs;
+        if (!dateKey && now < rs) {
+          dateKey = key; eventDate = ed; revealStart = rs;
         }
       }
 
-      // 5) 포스터 이미지 호출
-      const pBody = await fetch(`${PROXY_URL}?date=${dateKey}&type=poster`).then(r => r.text());
-      if (pBody.startsWith('data:image')) {
-        document.getElementById('wom-poster').src = pBody;
+      // 4) 이미지 로드 (병렬)
+      let posterBody = '', workoutBody = '';
+      if(dateKey) {
+        // 포스터 이미지는 3일 전부터 공개
+        posterBody  = await fetch(`${PROXY_URL}?date=${dateKey}&type=poster`).then(r => r.text());
+        // 워크아웃 이미지는 당일에만 공개
+        workoutBody = showWorkout
+            ? await fetch(`${PROXY_URL}?date=${dateKey}&type=workout`).then(r => r.text())
+            : '';
       }
 
-      // 6) 안내 문구 및 운동 이미지 처리
+      // 5) DOM 업데이트
+      showLoading(false);
+
+      const posterEl = document.getElementById('wom-poster');
+      const workoutEl = document.getElementById('wom-workout');
       const captionEl = document.getElementById('wom-caption');
-      if (showWorkout) {
-        const wBody = await fetch(`${PROXY_URL}?date=${dateKey}&type=workout`).then(r => r.text());
-        if (wBody.startsWith('data:image')) {
-          const wEl = document.getElementById('wom-workout');
-          wEl.src = wBody;
-          wEl.style.display = 'block';
-        }
-        captionEl.textContent = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 WOM와드 공개 🔥`;
+      const weekdays = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+      fallbackEl.style.display = 'none';
+
+      if (!posterBody) {
+        setImageError(posterEl, 'poster');
       } else {
-        captionEl.textContent = `📣 ${revealStart.getMonth()+1}월 ${revealStart.getDate()}일에 공개됩니다!`;
+        posterEl.src = posterBody;
+        posterEl.style.display = 'block';
+        posterEl.onload = () => posterEl.classList.add('visible');
+        posterEl.onerror = () => setImageError(posterEl, 'poster');
       }
-      
-      overlay.style.display = 'none';
-      loader.style.display = 'none';
+
+      if (showWorkout && workoutBody) {
+        workoutEl.src = workoutBody;
+        workoutEl.style.display = 'block';
+        workoutEl.onload = () => workoutEl.classList.add('visible');
+        workoutEl.onerror = () => setImageError(workoutEl, 'workout');
+        const wd = weekdays[eventDate.getDay()];
+        captionEl.textContent = `🚀 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 (${wd}) WOM와드 공개 🔥`;
+      } else if(!showWorkout && now >= revealStart) {
+        // 아직 워크아웃 미공개, 포스터만 노출
+        const wd = weekdays[eventDate.getDay()];
+        captionEl.textContent = `📣 ${eventDate.getMonth()+1}월 ${eventDate.getDate()}일 [${wd}]에 운동이 공개됩니다!`;
+      } else {
+        // 차기 WOM 대기 중
+        captionEl.textContent = `⏳ 다음 WOM 이벤트를 기다려주세요.`;
+      }
     })();
   </script>
 </body>
