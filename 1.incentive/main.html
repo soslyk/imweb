@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>통합 페이지</title>
+
+  <style>
+    /* ✅ 공통 색상 변수 정의 */
+    :root {
+      --kakao-yellow: #FEE500;
+      --kakao-black: #000000;
+      --kakao-gray: #666666;
+    }
+
+    /* ✅ iframe을 감싸는 컨테이너 (중앙 배치 및 최소 높이 유지) */
+    .dataFrame-container {
+      position: relative;
+      min-height: 400px; /* iframe 로딩 전에도 컨테이너 크기를 유지 */
+    }
+
+    /* ✅ 로딩 오버레이 스타일 */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: 999;
+      display: none;
+    }
+
+    /* ✅ 로딩 스피너 스타일 */
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid var(--kakao-yellow);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* ✅ 전체 페이지 컨테이너 (여백, 그림자 등 레이아웃 설정) */
+    .container {
+      width: 97%;
+      max-width: 100%;
+      height: 90%;
+      margin: 0 auto;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+    }
+
+    /* ✅ 버튼 영역 감싸는 컨테이너 */
+    .result-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: #FFFFFF;
+      color: #333D4B;
+      border-radius: 12px;
+      padding: 15px;      
+      font-family: "Pretendard", sans-serif;
+      border: 3px solid #EAEDEF;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    /* ✅ iframe 스타일 설정 */
+    iframe {
+      width: 100%;
+      transform: scale(1.0);
+      transform-origin: top center;
+      margin: 5px;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+    }
+
+    /* ✅ 버튼 기본 스타일 */
+    .toggle-button {
+      border: none;
+      background: #F0F0F0;
+      color: var(--kakao-gray);
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.3s, color 0.3s;
+      font-size: 14px;
+      font-weight: 500;
+      flex-grow: 1;
+      flex-basis: auto;
+      text-align: center;
+      white-space: nowrap;
+      margin: 2px;
+      min-width: 100px;
+      flex: 1 1 calc(25% - 12px);
+    }
+
+    #button5.active, #button6.active, #button7.active {
+      background: #1F3EF5;
+      color: #FFFFFF; 
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* ✅ 활성화된 버튼 스타일 */
+    .toggle-button.active:not(#button5, #button6, #button7) {
+      background: var(--kakao-yellow);
+      color: #222222;
+    }
+
+    /* ✅ 버튼들을 묶는 flex 박스 */
+    .toggle-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      gap: 2px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ✅ 모바일 대응 스타일 */
+    @media screen and (max-width: 768px) {
+      .toggle-button {
+        padding: 6px 10px;
+        min-width: 80px;
+        font-size: 12px;
+        flex: 1 1 calc(33.33% - 8px);
+      }
+      
+      .toggle-container {
+        flex-direction: row;
+        gap: 2px;        
+      }
+      iframe {
+        width: 110%;
+        height: 100%;
+        transform-origin: top left;
+        transform: scale(0.91);
+        margin: 0px;
+        padding: 0px;
+        border-radius: 12px;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="result-container">
+      <div class="toggle-container">
+        <button class="toggle-button active" id="button1">종합현황 차트</button>
+        <button class="toggle-button" id="button2">월단위 달성현황</button>
+        <button class="toggle-button" id="button3">인센내역 및 정책</button>
+        <button class="toggle-button" id="button4">연간 회원수</button>
+        <button class="toggle-button" id="button5">신창점 대시보드</button>
+        <button class="toggle-button" id="button6">이월대상자</button>
+        <button class="toggle-button" id="button7">노쇼체크</button>
+        <button class="toggle-button" id="button8">배송상품 확인</button>
+      </div>
+    </div>
+
+    <div class="dataFrame-container" id="dataFrameContainer">
+      <div class="loading-overlay"></div>
+      <div class="loader"></div>
+      <iframe id="dataFrame"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // ✅ iframe 요소 및 버튼들 선택
+    const dataFrame = document.getElementById('dataFrame');
+    const buttons = document.querySelectorAll('.toggle-button');
+
+    // ✅ 버튼 ID에 따라 불러올 페이지 URL 정의 https://soslyk.github.io/imweb/1.incentive/
+    const dataUrls = {
+      button1: "https://soslyk.github.io/imweb/1.incentive/OverviewChart",
+      button2: "https://soslyk.github.io/imweb/1.incentive/MonthlyProgress",
+      button3: "https://soslyk.github.io/imweb/1.incentive/RewardPolicy",
+      button4: "https://soslyk.github.io/imweb/1.incentive/ComparisonBranch",
+      button5: "https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/eMJQF",
+      button6: "https://crossfitpaan.com/carryover",
+      button7: "https://soslyk.github.io/imweb/1.incentive/noshow.html",
+      button8: "https://crossfitpaan.com/checkdelivery"
+    };
+
+    // ✅ iframe에 URL을 업데이트하는 함수
+    function updateFrame(url) {
+      const loader = document.querySelector('.loader');
+      const overlay = document.querySelector('.loading-overlay');
+      
+      loader.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      dataFrame.onload = function() {
+        loader.style.display = 'none';
+        overlay.style.display = 'none';
+      };
+      
+      dataFrame.src = url;
+    }
+
+    // ✅ 버튼 클릭 이벤트 설정
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        // 모든 버튼에서 active 클래스 제거
+        buttons.forEach(btn => btn.classList.remove('active'));
+        // 클릭된 버튼에 active 클래스 추가
+        button.classList.add('active');
+        // 해당 버튼의 데이터 URL로 프레임 업데이트
+        updateFrame(dataUrls[button.id]);
+      });
+    });
+
+    // ✅ 첫 번째 버튼 URL로 초기 iframe 로드
+    updateFrame(dataUrls.button1);
+
+    // ✅ 창 크기에 따라 iframe 높이 자동 조절
+    function adjustFrameHeight() {
+      const vh = window.innerHeight;
+      dataFrame.style.height = `${vh - 120}px`;
+    }
+
+    // ✅ 창 크기 변경 시 높이 재조정 실행
+    window.addEventListener('resize', adjustFrameHeight);
+    adjustFrameHeight();
+  </script>
+</body>
+</html>
