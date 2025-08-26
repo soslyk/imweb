@@ -25,7 +25,6 @@
     .container {
       width: 97%;
       max-width: 100%;
-      /* height:125%; // [수정] 고정 높이 제거로 반응형 세로 확장 */
       margin: 0 auto;
       padding: 10px;
       border-radius: 12px;
@@ -83,7 +82,8 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
     }
 
-    .dataFrame-container {
+    .dataFrame-container,
+    .shin-container {
       flex-grow: 1;
       transition: opacity .5s;
       overflow: hidden;
@@ -102,6 +102,32 @@
       box-sizing: border-box;
       height: auto;
       flex-grow: 1;
+    }
+
+    .shin-stack {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 130px);
+      border: 1px solid #EAEDEF;
+      border-radius: 12px;
+      box-sizing: border-box;
+    }
+
+    .shin-stack iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      border-radius: 12px;
+      transform: scale(.78);
+      transform-origin: top left;
+      background: #fff;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     @media (max-width:768px) {
@@ -142,10 +168,19 @@
         border-style: solid;
         border-color: #EAEDEF;
       }
+
+      .shin-stack {
+        height: calc(100vh - 20px);
+      }
+
+      .shin-stack iframe {
+        width: 845px;
+        transform: scale(.5);
+      }
     }
 
     @media (min-width:769px) {
-      iframe {
+      iframe#dataFrame {
         height: calc(100vh - 130px);
         width: 128%;
       }
@@ -173,8 +208,19 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
-      <!-- [추가] 신창점 대시보드 버튼 클릭 시 위에 표시될 Looker Studio 프레임 -->
-      <div id="extraFrameContainer" style="display:none;"></div>
+      <!-- 신창점 전용 컨테이너 (두 개 프레임을 미리 로드) -->
+      <div id="shinContainer" class="shin-container" hidden>
+        <div class="shin-stack">
+          <iframe id="shinBranchFrame"
+            src="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud"
+            title="신창점 대시보드" allowfullscreen loading="eager"></iframe>
+          <iframe id="shinStaffFrame"
+            src="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/eMJQF"
+            title="담당자 대시보드" allowfullscreen loading="eager" hidden></iframe>
+        </div>
+      </div>
+
+      <!-- 다른 지점/화면용 단일 프레임 -->
       <iframe id="dataFrame" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
@@ -182,36 +228,69 @@
   <script>
     const buttons = document.querySelectorAll(".toggle-button");
     const dataFrame = document.getElementById("dataFrame");
-    const extraFrameContainer = document.getElementById("extraFrameContainer");
+    const shinContainer = document.getElementById("shinContainer");
+    const shinBranchFrame = document.getElementById("shinBranchFrame");
+    const shinStaffFrame = document.getElementById("shinStaffFrame");
 
-    // [추가] 신창점 대시보드용 Looker Studio URL
-    const shinchangLookerUrl = "https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/eMJQF";
-    // [추가] 신창점 대시보드 버튼의 data-url
-    const shinchangBtnUrl = "https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud";
+    const SHIN_BRANCH_URL = shinBranchFrame.src;
+    const shinBtn = [...buttons].find(b => b.dataset.url === SHIN_BRANCH_URL);
 
-    // 공통 클릭 핸들러
+    let shinIsStaffMode = false;
+
+    const activateButton = (btn) => {
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    };
+
+    const updateShinLabel = () => {
+      shinBtn.textContent = shinIsStaffMode ? "담당자 대시보드" : "신창점 대시보드";
+    };
+
+    const showShin = () => {
+      shinContainer.hidden = false;
+      dataFrame.hidden = true;
+      shinBranchFrame.hidden = shinIsStaffMode;
+      shinStaffFrame.hidden = !shinIsStaffMode;
+    };
+
+    const showCommon = (url) => {
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      dataFrame.src = url;
+      shinIsStaffMode = false;
+      updateShinLabel();
+    };
+
     buttons.forEach(btn => {
       btn.addEventListener("click", () => {
-        if (btn.classList.contains("active")) return;
-        buttons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        dataFrame.src = btn.dataset.url;
-        // [추가] 신창점 대시보드 버튼 클릭 시 extra 프레임 위에 표시
-        if (btn.dataset.url === shinchangBtnUrl) {
-          extraFrameContainer.innerHTML = `<iframe src='${shinchangLookerUrl}' frameborder='0' allowfullscreen style='width:100%;min-height:400px;height:480px;border-radius:12px;border:1px solid #EAEDEF;box-sizing:border-box;margin-bottom:10px;display:block;background:#fff;'></iframe>`;
-          extraFrameContainer.style.display = "block";
-        } else {
-          extraFrameContainer.innerHTML = "";
-          extraFrameContainer.style.display = "none";
+        if (btn === shinBtn) {
+          if (!shinBtn.classList.contains("active")) {
+            activateButton(shinBtn);
+            shinIsStaffMode = false;
+            updateShinLabel();
+            showShin();
+            return;
+          }
+          shinIsStaffMode = !shinIsStaffMode;
+          updateShinLabel();
+          showShin();
+          return;
         }
+
+        activateButton(btn);
+        showCommon(btn.dataset.url);
       });
     });
 
-    // 초기 로드: 첫 번째 버튼 URL 세팅 및 extraFrame 숨김
     window.addEventListener("DOMContentLoaded", () => {
-      dataFrame.src = buttons[0].dataset.url;
-      extraFrameContainer.innerHTML = "";
-      extraFrameContainer.style.display = "none";
+      const first = buttons[0];
+      activateButton(first);
+      dataFrame.hidden = false;
+      shinContainer.hidden = true;
+      dataFrame.src = first.dataset.url;
+
+      shinIsStaffMode = false;
+      updateShinLabel();
     });
   </script>
 </body>
