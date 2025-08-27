@@ -73,6 +73,11 @@
       flex-grow: 1;
       text-align: center;
       white-space: nowrap;
+      /* 클릭 이벤트 처리 개선 */
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
     }
 
     .toggle-button.active {
@@ -193,16 +198,16 @@
     <div class="result-container">
       <div class="toggle-container">
         <button class="toggle-button active"
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/buSUF">상무점
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/buSUF">상무점 
           대시보드</button>
         <button class="toggle-button"
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud">신창점
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud">신창점 
           대시보드</button>
         <button class="toggle-button"
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_suzy22l9ud">오치점
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_suzy22l9ud">오치점 
           대시보드</button>
         <button class="toggle-button"
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">전지점
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">전지점 
           담당자별 등록률</button>
       </div>
     </div>
@@ -226,34 +231,52 @@
   </div>
 
   <script>
+    // DOM 요소들 선택
     const buttons = document.querySelectorAll(".toggle-button");
     const dataFrame = document.getElementById("dataFrame");
     const shinContainer = document.getElementById("shinContainer");
     const shinBranchFrame = document.getElementById("shinBranchFrame");
     const shinStaffFrame = document.getElementById("shinStaffFrame");
 
+    // 신창점 URL과 버튼 찾기
     const SHIN_BRANCH_URL = shinBranchFrame.src;
     const shinBtn = [...buttons].find(b => b.dataset.url === SHIN_BRANCH_URL);
 
+    // 신창점 모드 상태
     let shinIsStaffMode = false;
 
+    // 디버깅을 위한 로그 추가
+    console.log('EntireDashboard 스크립트 시작');
+    console.log('신창점 버튼 찾음:', shinBtn);
+
+    // 버튼 활성화 함수
     const activateButton = (btn) => {
+      console.log('버튼 활성화:', btn.textContent);
       buttons.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
     };
 
+    // 신창점 버튼 텍스트 업데이트 함수
     const updateShinLabel = () => {
-      shinBtn.textContent = shinIsStaffMode ? "담당자 대시보드" : "신창점 대시보드";
+      if (shinBtn) {
+        const newText = shinIsStaffMode ? "담당자 대시보드" : "신창점 대시보드";
+        console.log('신창점 버튼 텍스트 변경:', newText);
+        shinBtn.textContent = newText;
+      }
     };
 
+    // 신창점 컨테이너 표시 함수
     const showShin = () => {
+      console.log('신창점 컨테이너 표시, 스태프 모드:', shinIsStaffMode);
       shinContainer.hidden = false;
       dataFrame.hidden = true;
       shinBranchFrame.hidden = shinIsStaffMode;
       shinStaffFrame.hidden = !shinIsStaffMode;
     };
 
+    // 일반 페이지 표시 함수
     const showCommon = (url) => {
+      console.log('일반 페이지 표시:', url);
       shinContainer.hidden = true;
       dataFrame.hidden = false;
       dataFrame.src = url;
@@ -261,37 +284,87 @@
       updateShinLabel();
     };
 
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (btn === shinBtn) {
-          if (!shinBtn.classList.contains("active")) {
-            activateButton(shinBtn);
-            shinIsStaffMode = false;
+    // 버튼 클릭 이벤트 처리 (개선된 버전)
+    buttons.forEach((btn, index) => {
+      console.log(`버튼 ${index} 이벤트 리스너 추가:`, btn.textContent, btn.dataset.url);
+      
+      // 여러 이벤트 타입으로 처리
+      ['click', 'touchend'].forEach(eventType => {
+        btn.addEventListener(eventType, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          console.log(`${eventType} 이벤트 발생:`, btn.textContent);
+
+          if (btn === shinBtn) {
+            console.log('신창점 버튼 클릭됨');
+            
+            if (!shinBtn.classList.contains("active")) {
+              console.log('신창점 버튼 활성화');
+              activateButton(shinBtn);
+              shinIsStaffMode = false;
+              updateShinLabel();
+              showShin();
+              return;
+            }
+            
+            console.log('신창점 버튼 토글');
+            shinIsStaffMode = !shinIsStaffMode;
             updateShinLabel();
             showShin();
             return;
           }
-          shinIsStaffMode = !shinIsStaffMode;
-          updateShinLabel();
-          showShin();
-          return;
-        }
 
-        activateButton(btn);
-        showCommon(btn.dataset.url);
+          console.log('일반 버튼 클릭:', btn.dataset.url);
+          activateButton(btn);
+          showCommon(btn.dataset.url);
+        }, { passive: false });
       });
     });
 
+    // 페이지 로드 시 초기화
     window.addEventListener("DOMContentLoaded", () => {
+      console.log('DOMContentLoaded 이벤트');
       const first = buttons[0];
-      activateButton(first);
-      dataFrame.hidden = false;
-      shinContainer.hidden = true;
-      dataFrame.src = first.dataset.url;
+      if (first) {
+        console.log('첫 번째 버튼으로 초기화:', first.textContent);
+        activateButton(first);
+        dataFrame.hidden = false;
+        shinContainer.hidden = true;
+        dataFrame.src = first.dataset.url;
+      }
 
       shinIsStaffMode = false;
       updateShinLabel();
+      
+      console.log('초기화 완료');
     });
+
+    // 부모 페이지와의 통신을 위한 메시지 전송 (선택사항)
+    function notifyParent(message) {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(message, '*');
+        }
+      } catch (e) {
+        console.log('부모 페이지 통신 실패:', e);
+      }
+    }
+
+    // 페이지 로드 완료 시 부모에게 알림
+    window.addEventListener('load', () => {
+      console.log('페이지 로드 완료');
+      notifyParent({ type: 'dashboardLoaded', page: 'EntireDashboard' });
+    });
+
+    // 추가적인 초기화 처리
+    setTimeout(() => {
+      console.log('지연 초기화 실행');
+      // 버튼들이 제대로 설정되었는지 확인
+      buttons.forEach((btn, idx) => {
+        console.log(`버튼 ${idx}:`, btn.textContent, '이벤트 리스너 수:', getEventListeners ? getEventListeners(btn) : '확인불가');
+      });
+    }, 1000);
   </script>
 </body>
 

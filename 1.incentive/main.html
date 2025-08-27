@@ -13,10 +13,15 @@
       --kakao-gray: #666666;
     }
 
-    /* ✅ iframe을 감싸는 컨테이너 (중앙 배치 및 최소 높이 유지) */
+    /* ✅ iframe을 감싸는 컨테이너 */
     .dataFrame-container {
       position: relative;
-      min-height: 400px; /* iframe 로딩 전에도 컨테이너 크기를 유지 */
+      min-height: 400px;
+      flex-grow: 1;
+      transition: opacity .5s;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ✅ 로딩 오버레이 스타일 */
@@ -52,21 +57,24 @@
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
-    /* ✅ 전체 페이지 컨테이너 (여백, 그림자 등 레이아웃 설정) */
+    /* ✅ 전체 페이지 컨테이너 */
     .container {
       width: 97%;
       max-width: 100%;
-      /* height: 90%;  // [수정] 고정 높이 제거로 반응형 세로 확장 */
       margin: 0 auto;
       padding: 10px;
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 20px);
     }
 
     /* ✅ 버튼 영역 감싸는 컨테이너 */
     .result-container {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       margin-bottom: 10px;
@@ -89,6 +97,7 @@
       height: 100%;
       border: none;
       border-radius: 12px;
+      flex-grow: 1;
     }
 
     /* ✅ 버튼 기본 스타일 */
@@ -111,17 +120,12 @@
       flex: 1 1 calc(25% - 12px);
     }
 
-    #button5.active, #button6.active, #button7.active {
-      background: #1F3EF5;
-      color: #FFFFFF; 
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
     /* ✅ 활성화된 버튼 스타일 */
-    .toggle-button.active:not(#button5, #button6, #button7) {
+    .toggle-button.active {
       background: var(--kakao-yellow);
       color: #222222;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     /* ✅ 버튼들을 묶는 flex 박스 */
@@ -136,19 +140,105 @@
       margin: 0 auto;
     }
 
+    /* ✅ 지점 대시보드 서브 버튼 컨테이너 (EntireDashboard.html 스타일 그대로) */
+    .branch-sub-container {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 900px;
+      background: #F0F0F0;
+      border-radius: 8px;
+      padding: 4px;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .branch-sub-container.show {
+      display: flex;
+    }
+
+    /* ✅ 지점 서브 버튼 스타일 (EntireDashboard.html과 동일) */
+    .branch-toggle-button {
+      border: none;
+      background: transparent;
+      color: #555;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background .3s, color .3s;
+      font-size: 14px;
+      font-weight: 500;
+      flex-grow: 1;
+      text-align: center;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .branch-toggle-button.active {
+      background: #1F3EF5;
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+    }
+
+    /* ✅ 신창점 스택 컨테이너 (EntireDashboard.html과 동일) */
+    .shin-stack {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 180px);
+      border: 1px solid #EAEDEF;
+      border-radius: 12px;
+      box-sizing: border-box;
+    }
+
+    .shin-stack iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      border-radius: 12px;
+      transform: scale(1.0);
+      transform-origin: top left;
+      background: #fff;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
     /* ✅ 모바일 대응 스타일 */
     @media screen and (max-width: 768px) {
-      .toggle-button {
+      .container {
+        width: 97%;
+        padding: 5px;
+        height: calc(100vh - 10px);
+        border-radius: 8px;
+      }
+
+      .result-container {
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+
+      .toggle-button, .branch-toggle-button {
         padding: 6px 10px;
         min-width: 80px;
         font-size: 12px;
         flex: 1 1 calc(33.33% - 8px);
       }
       
-      .toggle-container {
+      .toggle-container, .branch-sub-container {
         flex-direction: row;
         gap: 2px;        
       }
+      
       iframe {
         width: 110%;
         height: 100%;
@@ -159,6 +249,26 @@
         border-radius: 12px;
       }
 
+      .shin-stack {
+        height: calc(100vh - 200px);
+      }
+
+      .shin-stack iframe {
+        width: 845px;
+        transform: scale(.5);
+        transform-origin: top left;
+      }
+    }
+
+    @media (min-width:769px) {
+      iframe#dataFrame {
+        height: calc(100vh - 180px);
+        width: 100%;
+      }
+
+      .shin-stack {
+        height: calc(100vh - 180px);
+      }
     }
   </style>
 </head>
@@ -170,38 +280,73 @@
         <button class="toggle-button" id="button2">월단위 달성현황</button>
         <button class="toggle-button" id="button3">인센내역 및 정책</button>
         <button class="toggle-button" id="button4">연간 회원수</button>
-        <button class="toggle-button" id="button5">전지점 대시보드</button>
+        <button class="toggle-button" id="button5">지점 대시보드</button>
         <button class="toggle-button" id="button6">이월대상자</button>
         <button class="toggle-button" id="button7">노쇼체크</button>
         <button class="toggle-button" id="button8">배송상품 확인</button>
+      </div>
+
+      <!-- 지점 대시보드 서브 버튼들 (EntireDashboard.html과 동일한 디자인) -->
+      <div class="branch-sub-container" id="branchSubContainer">
+        <button class="branch-toggle-button active" 
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/buSUF">상무점 대시보드</button>
+        <button class="branch-toggle-button" 
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud" 
+          id="shinBtn">신창점 대시보드</button>
+        <button class="branch-toggle-button" 
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_suzy22l9ud">오치점 대시보드</button>
+        <button class="branch-toggle-button" 
+          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">전지점 담당자별 등록률</button>
       </div>
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
       <div class="loading-overlay"></div>
       <div class="loader"></div>
+      
+      <!-- 신창점 전용 컨테이너 (EntireDashboard.html과 동일) -->
+      <div id="shinContainer" class="shin-container" hidden>
+        <div class="shin-stack">
+          <iframe id="shinBranchFrame"
+            src="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud"
+            title="신창점 대시보드" allowfullscreen loading="eager"></iframe>
+          <iframe id="shinStaffFrame"
+            src="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/eMJQF"
+            title="담당자 대시보드" allowfullscreen loading="eager" hidden></iframe>
+        </div>
+      </div>
+      
+      <!-- 일반 iframe -->
       <iframe id="dataFrame"></iframe>
     </div>
   </div>
 
   <script>
-    // ✅ iframe 요소 및 버튼들 선택
+    // ✅ DOM 요소들 선택
     const dataFrame = document.getElementById('dataFrame');
     const buttons = document.querySelectorAll('.toggle-button');
+    const branchButtons = document.querySelectorAll('.branch-toggle-button');
+    const branchSubContainer = document.getElementById('branchSubContainer');
+    const shinContainer = document.getElementById('shinContainer');
+    const shinBranchFrame = document.getElementById('shinBranchFrame');
+    const shinStaffFrame = document.getElementById('shinStaffFrame');
+    const shinBtn = document.getElementById('shinBtn');
 
-    // ✅ 버튼 ID에 따라 불러올 페이지 URL 정의 https://soslyk.github.io/imweb/1.incentive/
+    // ✅ 신창점 모드 상태 (EntireDashboard.html과 동일)
+    let shinIsStaffMode = false;
+
+    // ✅ URL 매핑
     const dataUrls = {
       button1: "https://soslyk.github.io/imweb/1.incentive/OverviewChart",
       button2: "https://soslyk.github.io/imweb/1.incentive/MonthlyProgress",
       button3: "https://soslyk.github.io/imweb/1.incentive/RewardPolicy",
       button4: "https://soslyk.github.io/imweb/1.incentive/ComparisonBranch",
-      button5: "https://soslyk.github.io/imweb/1.incentive/EntireDashboard",
       button6: "https://crossfitpaan.com/carryover",
       button7: "https://soslyk.github.io/imweb/1.incentive/noshow",
       button8: "https://crossfitpaan.com/checkdelivery"
     };
 
-    // ✅ iframe에 URL을 업데이트하는 함수
+    // ✅ iframe 업데이트 함수
     function updateFrame(url) {
       const loader = document.querySelector('.loader');
       const overlay = document.querySelector('.loading-overlay');
@@ -210,37 +355,165 @@
       overlay.style.display = 'block';
       
       dataFrame.onload = function() {
-        loader.style.display = 'none';
-        overlay.style.display = 'none';
+        setTimeout(() => {
+          loader.style.display = 'none';
+          overlay.style.display = 'none';
+        }, 500);
       };
       
       dataFrame.src = url;
     }
 
-    // ✅ 버튼 클릭 이벤트 설정
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        // 모든 버튼에서 active 클래스 제거
-        buttons.forEach(btn => btn.classList.remove('active'));
-        // 클릭된 버튼에 active 클래스 추가
-        button.classList.add('active');
-        // 해당 버튼의 데이터 URL로 프레임 업데이트
-        updateFrame(dataUrls[button.id]);
+    // ✅ EntireDashboard.html의 함수들을 그대로 구현
+    const activateButton = (btn, isMainButton = false) => {
+      if (isMainButton) {
+        buttons.forEach(b => b.classList.remove("active"));
+      } else {
+        branchButtons.forEach(b => b.classList.remove("active"));
+      }
+      btn.classList.add("active");
+    };
+
+    const updateShinLabel = () => {
+      shinBtn.textContent = shinIsStaffMode ? "담당자 대시보드" : "신창점 대시보드";
+    };
+
+    const showShin = () => {
+      shinContainer.hidden = false;
+      dataFrame.hidden = true;
+      shinBranchFrame.hidden = shinIsStaffMode;
+      shinStaffFrame.hidden = !shinIsStaffMode;
+    };
+
+    const showCommon = (url) => {
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(url);
+      shinIsStaffMode = false;
+      updateShinLabel();
+    };
+
+    // ✅ 메인 버튼 이벤트들
+    document.getElementById('button1').addEventListener('click', () => {
+      activateButton(document.getElementById('button1'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button1);
+    });
+
+    document.getElementById('button2').addEventListener('click', () => {
+      activateButton(document.getElementById('button2'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button2);
+    });
+
+    document.getElementById('button3').addEventListener('click', () => {
+      activateButton(document.getElementById('button3'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button3);
+    });
+
+    document.getElementById('button4').addEventListener('click', () => {
+      activateButton(document.getElementById('button4'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button4);
+    });
+
+    // ✅ 지점 대시보드 버튼 - 서브 버튼들 표시
+    document.getElementById('button5').addEventListener('click', () => {
+      activateButton(document.getElementById('button5'), true);
+      branchSubContainer.classList.add('show');
+      
+      // 기본으로 첫 번째 지점 버튼 활성화
+      branchButtons.forEach(b => b.classList.remove("active"));
+      branchButtons[0].classList.add("active");
+      
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(branchButtons[0].dataset.url);
+      
+      shinIsStaffMode = false;
+      updateShinLabel();
+    });
+
+    document.getElementById('button6').addEventListener('click', () => {
+      activateButton(document.getElementById('button6'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button6);
+    });
+
+    document.getElementById('button7').addEventListener('click', () => {
+      activateButton(document.getElementById('button7'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button7);
+    });
+
+    document.getElementById('button8').addEventListener('click', () => {
+      activateButton(document.getElementById('button8'), true);
+      branchSubContainer.classList.remove('show');
+      shinContainer.hidden = true;
+      dataFrame.hidden = false;
+      updateFrame(dataUrls.button8);
+    });
+
+    // ✅ 지점 서브 버튼들 이벤트 (EntireDashboard.html과 동일한 로직)
+    branchButtons.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (btn === shinBtn) {
+          // 신창점 버튼 클릭 시
+          if (!shinBtn.classList.contains("active")) {
+            // 처음 클릭 시 활성화
+            activateButton(shinBtn);
+            shinIsStaffMode = false;
+            updateShinLabel();
+            showShin();
+            return;
+          }
+          
+          // 이미 활성화된 상태에서 클릭 시 토글
+          shinIsStaffMode = !shinIsStaffMode;
+          updateShinLabel();
+          showShin();
+          return;
+        }
+
+        // 다른 지점 버튼들
+        activateButton(btn);
+        showCommon(btn.dataset.url);
       });
     });
 
-    // ✅ 첫 번째 버튼 URL로 초기 iframe 로드
+    // ✅ 초기 로드
     updateFrame(dataUrls.button1);
 
     // ✅ 창 크기에 따라 iframe 높이 자동 조절
     function adjustFrameHeight() {
       const vh = window.innerHeight;
-      dataFrame.style.height = `${vh - 120}px`;
+      dataFrame.style.height = `${vh - 180}px`;
     }
 
-    // ✅ 창 크기 변경 시 높이 재조정 실행
     window.addEventListener('resize', adjustFrameHeight);
     adjustFrameHeight();
+
+    // ✅ 초기화
+    document.addEventListener('DOMContentLoaded', () => {
+      shinIsStaffMode = false;
+      updateShinLabel();
+    });
   </script>
 </body>
 </html>
