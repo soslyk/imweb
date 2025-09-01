@@ -314,14 +314,33 @@
       return `${year}-${month}`;
     }
 
+    // 현재 월 데이터가 비어있을 때를 대비해, 가장 최근(과거 포함) 사용 가능한 URL을 찾아 반환
+    function findLatestAvailableUrl(branch) {
+      // 해당 지점의 모든 YYYY-MM 키를 내림차순(최근 → 과거)으로 정렬
+      const keys = Object.keys(branchUrls[branch] || {}).sort().reverse();
+      for (const k of keys) {
+        const candidate = branchUrls[branch][k];
+        if (candidate) return { key: k, url: candidate };
+      }
+      return null; // 모든 키가 비어있으면 null
+    }
+
     // 버튼 클릭 시 iframe 소스 변경 및 활성 상태 업데이트 함수
     function handleButtonClick(clickedButton, branch) {
       const currentMonthKey = getCurrentYearMonth();
-      const url = branchUrls[branch][currentMonthKey];
+      console.log('[noshow] currentMonthKey:', currentMonthKey, 'branch:', branch);
+      let url = branchUrls[branch][currentMonthKey];
 
+      // 현재 월 URL이 없으면 가장 최근 사용 가능한 URL로 대체
       if (!url) {
-        alert("현재 월에 해당하는 데이터가 없습니다.");
-        return;
+        const latest = findLatestAvailableUrl(branch);
+        if (latest && latest.url) {
+          console.warn(`[noshow] 현재 월 데이터가 비어 있어 ${latest.key} 데이터로 대체 표시합니다.`);
+          url = latest.url;
+        } else {
+          alert("현재 월에 해당하는 데이터가 없습니다.");
+          return;
+        }
       }
 
       const loader = document.querySelector('.loader');
@@ -338,6 +357,13 @@
         overlay.style.display = 'none';
       };
       
+      // 동일 URL 재로딩 방지: 이미 같은 src면 새로 고침하지 않음
+      if (branchDataFrame.src === url) {
+        loader.style.display = 'none';
+        overlay.style.display = 'none';
+        return;
+      }
+      
       branchDataFrame.src = url;
     }
 
@@ -352,12 +378,23 @@
       sangmuButton.classList.add('active');
 
       const currentMonthKey = getCurrentYearMonth();
-      const url = branchUrls['sangmu'][currentMonthKey];
+      console.log('[noshow] initializeView currentMonthKey:', currentMonthKey);
+      let url = branchUrls['sangmu'][currentMonthKey];
 
-      if (url) {
+      if (!url) {
+        const latest = findLatestAvailableUrl('sangmu');
+        if (latest && latest.url) {
+          console.warn(`[noshow] 초기 로드: 현재 월 데이터가 없어 ${latest.key} 데이터로 대체 표시합니다.`);
+          url = latest.url;
+        } else {
+          alert("현재 월에 해당하는 데이터가 없습니다.");
+          return;
+        }
+      }
+
+      // 동일 URL 재로딩 방지
+      if (branchDataFrame.src !== url) {
         branchDataFrame.src = url;
-      } else {
-        alert("현재 월에 해당하는 데이터가 없습니다.");
       }
     }
 
