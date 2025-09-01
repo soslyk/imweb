@@ -6,7 +6,22 @@
   <title>통합 페이지</title>
   
   <style>
-    /* ✅ 기본 리셋 및 전체 높이 설정 */
+    :root {
+      --primary-blue: #3182F6;
+      --primary-blue-light: #4593FC;
+      --violet-purple: #8B5CF6;
+      --white: #FFFFFF;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --branch-sangmu: #10B981;
+      --branch-sinchang: #3B82F6;
+      --branch-ochi: #F59E0B;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -16,128 +31,224 @@
     html, body {
       height: 100%;
       width: 100%;
-      overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
     }
 
-    /* ✅ 컨테이너 - 전체 화면 활용 */
     .container {
       width: 100%;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 10px;
+      padding: 8px;
       box-sizing: border-box;
     }
 
-    /* ✅ 버튼 영역 - 고정 높이 */
     .result-container {
       flex-shrink: 0;
-      background-color: #FFFFFF;
-      color: #333D4B;
+      background: var(--white);
+      color: var(--gray-800);
       border-radius: 12px;
-      padding: 15px;
-      border: 3px solid #EAEDEF;
-      font-weight: bold;
-      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid var(--gray-200);
+      font-weight: 600;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
 
-    /* ✅ 메인 버튼 컨테이너 */
+    /* 메인 카드 그리드 - 반응형 개선 */
     .toggle-container {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
+      gap: 8px;
       width: 100%;
-      gap: 2px;
+      justify-content: center;
     }
 
-    /* ✅ 버튼 스타일 */
+    .toggle-button {
+      flex: 1 1 calc(12.5% - 8px);
+      min-width: 120px;
+      max-width: 140px;
+    }
+
+    /* 줄바꿈 시 균등 배치 */
+    @media screen and (max-width: 1200px) {
+      .toggle-button {
+        flex: 1 1 calc(25% - 8px);
+        min-width: 110px;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      .toggle-container {
+        gap: 6px;
+      }
+      
+      .toggle-button {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 90px;
+        max-width: none;
+      }
+    }
+
+    /* 카드형 메인 버튼 - 크기 축소 */
     .toggle-button {
       border: none;
-      background: #F0F0F0;
-      color: #666666;
-      padding: 8px 16px;
+      background: var(--white);
+      color: var(--gray-700);
+      padding: 12px 8px;
       cursor: pointer;
-      border-radius: 6px;
-      transition: background 0.3s, color 0.3s;
-      font-size: 14px;
-      font-weight: 500;
-      flex: 1 1 calc(25% - 12px);
+      border-radius: 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 12px;
+      font-weight: 600;
       text-align: center;
-      white-space: nowrap;
-      margin: 2px;
-      min-width: 100px;
+      border: 2px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toggle-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-blue);
+    }
+
+    .toggle-button:hover::before {
+      transform: scaleX(1);
     }
 
     .toggle-button.active {
-      background: #FEE500;
-      color: #222222;
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+      color: var(--white);
+      border-color: var(--primary-blue);
+      box-shadow: 0 4px 12px 0 rgba(49, 130, 246, 0.4);
+      transform: translateY(-2px);
     }
 
-    #button5.active, #button6.active, #button7.active {
-      background: #1F3EF5;
-      color: #FFFFFF;
+    .toggle-button.active::before {
+      transform: scaleX(1);
+      background: var(--white);
+      opacity: 0.3;
     }
 
-    /* ✅ 지점 서브 버튼 컨테이너 (EntireDashboard 스타일) */
+    /* 특별 버튼들 (이월대상자, 노쇼체크) */
+    #button6.active, #button7.active {
+      background: linear-gradient(135deg, var(--violet-purple) 0%, #A78BFA 100%);
+      box-shadow: 0 4px 12px 0 rgba(139, 92, 246, 0.4);
+    }
+
+    /* 버튼 아이콘 - 크기 축소 */
+    .button-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+
+    /* 통합된 서브 버튼 컨테이너 - 크기 축소 */
     .branch-sub-container {
       display: none;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      max-width: 900px;
-      background: #F0F0F0;
-      border-radius: 8px;
-      padding: 4px;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 0 auto;
-      margin-top: 10px;
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--gray-100);
+      border-radius: 10px;
     }
 
     .branch-sub-container.show {
-      display: flex;
+      display: block;
     }
 
-    /* ✅ 지점 서브 버튼 스타일 (EntireDashboard와 동일) */
+    .branch-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
     .branch-toggle-button {
       border: none;
-      background: transparent;
-      color: #555;
-      padding: 8px 16px;
+      background: var(--white);
+      color: var(--gray-700);
+      padding: 8px 6px;
       cursor: pointer;
       border-radius: 6px;
-      transition: background .3s, color .3s;
-      font-size: 14px;
-      font-weight: 500;
-      flex-grow: 1;
+      transition: all 0.2s ease;
+      font-size: 11px;
+      font-weight: 600;
       text-align: center;
-      white-space: nowrap;
-      user-select: none;
+      border: 2px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .branch-toggle-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-blue);
     }
 
     .branch-toggle-button.active {
-      background: #FEE500;
-      color: #000000;
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+      color: var(--white);
+      border-color: var(--primary-blue);
+      box-shadow: 0 2px 8px 0 rgba(49, 130, 246, 0.3);
+      transform: translateY(-1px);
     }
 
-    /* ✅ iframe 컨테이너 - 남은 공간 모두 차지 */
+    /* 지점별 색상 */
+    .branch-toggle-button.sangmu.active {
+      background: linear-gradient(135deg, var(--branch-sangmu) 0%, #34D399 100%);
+      box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3);
+    }
+
+    .branch-toggle-button.sinchang.active {
+      background: linear-gradient(135deg, var(--branch-sinchang) 0%, #60A5FA 100%);
+      box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.3);
+    }
+
+    .branch-toggle-button.ochi.active {
+      background: linear-gradient(135deg, var(--branch-ochi) 0%, #FBBF24 100%);
+      box-shadow: 0 2px 8px 0 rgba(245, 158, 11, 0.3);
+    }
+
+    .branch-toggle-button.staff.active {
+      background: linear-gradient(135deg, var(--violet-purple) 0%, #A78BFA 100%);
+      box-shadow: 0 2px 8px 0 rgba(139, 92, 246, 0.3);
+    }
+
+    /* iframe 컨테이너 - 높이 조정 */
     .dataFrame-container {
       flex: 1;
       position: relative;
-      min-height: 0;
+      min-height: 400px;
       overflow: hidden;
-      transition: opacity .5s;
+      transition: opacity .3s ease;
       display: flex;
       flex-direction: column;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 8px;
     }
 
-    /* ✅ iframe - 컨테이너에 완전히 맞춤 */
     iframe {
       width: 100%;
       height: 100%;
@@ -147,10 +258,9 @@
       flex-grow: 1;
     }
 
-    /* ✅ 신창점 컨테이너 */
     .shin-container {
       flex-grow: 1;
-      transition: opacity .5s;
+      transition: opacity .3s ease;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -158,16 +268,16 @@
       height: 100%;
     }
 
-    /* ✅ 신창점 스택 컨테이너 (EntireDashboard와 동일) */
     .shin-stack {
       position: relative;
       width: 100%;
       height: 100%;
       min-height: 400px;
-      border: 1px solid #EAEDEF;
+      border: 1px solid var(--gray-200);
       border-radius: 12px;
       box-sizing: border-box;
       flex-grow: 1;
+      overflow: hidden;
     }
 
     .shin-stack iframe {
@@ -180,27 +290,29 @@
       border-radius: 12px;
       transform: scale(1.0);
       transform-origin: top left;
-      background: #fff;
+      background: var(--white);
     }
 
-    /* ✅ 로딩 스타일 */
+    /* 로딩 스타일 */
     .loading-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
       z-index: 999;
       display: none;
+      border-radius: 16px;
     }
 
     .loader {
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #FEE500;
+      border: 4px solid var(--gray-200);
+      border-top: 4px solid var(--primary-blue);
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 48px;
+      height: 48px;
       animation: spin 1s linear infinite;
       position: absolute;
       left: 50%;
@@ -219,58 +331,83 @@
       display: none !important;
     }
 
-    /* ✅ 모바일 최적화 */
+    /* 모바일 최적화 */
     @media screen and (max-width: 768px) {
       .container {
-        padding: 5px;
+        padding: 8px;
       }
       
       .result-container {
-        padding: 10px;
-        margin-bottom: 5px;
-      }
-      
-      .toggle-button, .branch-toggle-button {
-        padding: 6px 10px;
-        font-size: 12px;
-        flex: 1 1 calc(33.33% - 8px);
-        min-width: 80px;
+        padding: 16px;
+        margin-bottom: 8px;
+        border-radius: 12px;
       }
 
-      /* 모든 iframe을 동일하게 처리 (일반 iframe과 신창점 iframe 모두) */
+      .toggle-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      
+      .toggle-button {
+        padding: 12px 8px;
+        font-size: 12px;
+        border-radius: 10px;
+      }
+
+      .button-icon {
+        font-size: 20px;
+      }
+
+      .branch-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+      }
+
+      .branch-toggle-button {
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+
       iframe {
         width: 110% !important;
         height: 100% !important;
         transform-origin: top left !important;
         transform: scale(0.91) !important;
-        margin: 0px !important;
-        padding: 0px !important;
         border-radius: 12px !important;
       }
 
-      /* 신창점 스택 내부 iframe도 동일하게 적용 */
       .shin-stack iframe {
         width: 110% !important;
         height: 100% !important;
         transform: scale(0.91) !important;
         transform-origin: top left !important;
-        position: absolute !important;
-        inset: 0 !important;
-        border: 0 !important;
         border-radius: 12px !important;
-        background: #fff !important;
+      }
+
+      .dataFrame-container {
+        border-radius: 12px;
+        height: 800px;
+        min-height: 800px;
+      }
+
+      .shin-stack {
+        border-radius: 12px;
+        min-height: 800px;
       }
     }
 
-    /* ✅ 아임웹 환경에서의 추가 설정 */
     @media screen and (max-height: 600px) {
       .result-container {
-        padding: 8px;
+        padding: 12px;
       }
       
-      .toggle-button, .branch-toggle-button {
-        padding: 4px 8px;
+      .toggle-button {
+        padding: 8px 6px;
         font-size: 11px;
+      }
+
+      .button-icon {
+        font-size: 18px;
       }
     }
   </style>
@@ -280,27 +417,61 @@
   <div class="container">
     <div class="result-container">
       <div class="toggle-container">
-        <button class="toggle-button active" id="button1">종합현황 차트</button>
-        <button class="toggle-button" id="button2">월단위 달성현황</button>
-        <button class="toggle-button" id="button3">인센내역 및 정책</button>
-        <button class="toggle-button" id="button4">연간 회원수</button>
-        <button class="toggle-button" id="button5">지점 대시보드</button>
-        <button class="toggle-button" id="button6">이월대상자</button>
-        <button class="toggle-button" id="button7">노쇼체크</button>
-        <button class="toggle-button" id="button8">배송상품 확인</button>
+        <button class="toggle-button active" id="button1">
+          <div class="button-icon">📊</div>
+          종합현황 차트
+        </button>
+        <button class="toggle-button" id="button2">
+          <div class="button-icon">📅</div>
+          월단위 달성현황
+        </button>
+        <button class="toggle-button" id="button3">
+          <div class="button-icon">💰</div>
+          인센내역 및 정책
+        </button>
+        <button class="toggle-button" id="button4">
+          <div class="button-icon">👥</div>
+          연간 회원수
+        </button>
+        <button class="toggle-button" id="button5">
+          <div class="button-icon">🏢</div>
+          지점 대시보드
+        </button>
+        <button class="toggle-button" id="button6">
+          <div class="button-icon">📋</div>
+          이월대상자
+        </button>
+        <button class="toggle-button" id="button7">
+          <div class="button-icon">❌</div>
+          노쇼체크
+        </button>
+        <button class="toggle-button" id="button8">
+          <div class="button-icon">📦</div>
+          배송상품 확인
+        </button>
       </div>
 
-      <!-- 지점 대시보드 서브 버튼들 (EntireDashboard 스타일 완전 재현) -->
+      <!-- 지점 대시보드 서브 버튼들 (통합된 4개 버튼) -->
       <div class="branch-sub-container" id="branchSubContainer">
-        <button class="branch-toggle-button active" 
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/buSUF">상무점 대시보드</button>
-        <button class="branch-toggle-button" 
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud" 
-          id="shinBtn">신창점 대시보드</button>
-        <button class="branch-toggle-button" 
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_suzy22l9ud">오치점 대시보드</button>
-        <button class="branch-toggle-button" 
-          data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">전지점 담당자별 등록률</button>
+        <div class="branch-buttons">
+          <button class="branch-toggle-button sangmu active" 
+            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/buSUF">
+            🌿 상무점 대시보드
+          </button>
+          <button class="branch-toggle-button sinchang" 
+            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud" 
+            id="shinBtn">
+            💙 신창점 대시보드
+          </button>
+          <button class="branch-toggle-button ochi" 
+            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_suzy22l9ud">
+            🧡 오치점 대시보드
+          </button>
+          <button class="branch-toggle-button staff" 
+            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">
+            👨‍💼 전지점 담당자별 등록률
+          </button>
+        </div>
       </div>
     </div>
     
@@ -308,7 +479,6 @@
       <div class="loading-overlay"></div>
       <div class="loader"></div>
       
-      <!-- 신창점 전용 컨테이너 (EntireDashboard와 동일) -->
       <div id="shinContainer" class="shin-container" hidden>
         <div class="shin-stack">
           <iframe id="shinBranchFrame"
@@ -320,13 +490,11 @@
         </div>
       </div>
       
-      <!-- 일반 iframe -->
       <iframe id="dataFrame"></iframe>
     </div>
   </div>
 
   <script>
-    // ✅ DOM 요소 선택
     const dataFrame = document.getElementById('dataFrame');
     const buttons = document.querySelectorAll('.toggle-button');
     const branchButtons = document.querySelectorAll('.branch-toggle-button');
@@ -335,40 +503,63 @@
     const shinBranchFrame = document.getElementById('shinBranchFrame');
     const shinStaffFrame = document.getElementById('shinStaffFrame');
     const shinBtn = document.getElementById('shinBtn');
+    const dataFrameContainer = document.getElementById('dataFrameContainer');
 
-    // ✅ 신창점 모드 상태
     let shinIsStaffMode = false;
+    let branchSubVisible = false;
+    let lastSelectedBranchIndex = 0; // 마지막 선택된 지점 기억
 
-    // ✅ URL 매핑 (EntireDashboard 제거)
     const dataUrls = {
       button1: "https://soslyk.github.io/imweb/1.incentive/OverviewChart",
       button2: "https://soslyk.github.io/imweb/1.incentive/MonthlyProgress",
       button3: "https://soslyk.github.io/imweb/1.incentive/RewardPolicy",
       button4: "https://soslyk.github.io/imweb/1.incentive/ComparisonBranch",
       button6: "https://crossfitpaan.com/carryover",
-      button7: "https://soslyk.github.io/imweb/1.incentive/noshow.html",
+      button7: "https://soslyk.github.io/imweb/1.incentive/noshow",
       button8: "https://crossfitpaan.com/checkdelivery"
     };
 
-    // ✅ iframe 업데이트 함수
+    // 개선된 모바일 화면 스크롤 함수
+    function scrollToElement(element, offset = 0) {
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          const rect = element.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const targetTop = rect.top + scrollTop - offset;
+          
+          window.scrollTo({
+            top: targetTop,
+            behavior: 'smooth'
+          });
+        }, 150); // 애니메이션 완료 후 스크롤
+      }
+    }
+
     function updateFrame(url) {
       const loader = document.querySelector('.loader');
       const overlay = document.querySelector('.loading-overlay');
-      
+
+      // If the requested URL is already loaded, do not reload (prevents refresh on toggle of sub buttons)
+      if (dataFrame && dataFrame.src === url) {
+        // Ensure any visible loader/overlay are hidden
+        loader.style.display = 'none';
+        overlay.style.display = 'none';
+        return;
+      }
+
       loader.style.display = 'block';
       overlay.style.display = 'block';
-      
+
       dataFrame.onload = function() {
         setTimeout(() => {
           loader.style.display = 'none';
           overlay.style.display = 'none';
         }, 300);
       };
-      
+
       dataFrame.src = url;
     }
 
-    // ✅ EntireDashboard 함수들 완전 재현
     const activateButton = (btn, isMainButton = false) => {
       if (isMainButton) {
         buttons.forEach(b => b.classList.remove("active"));
@@ -379,15 +570,13 @@
     };
 
     const updateShinLabel = () => {
-      shinBtn.textContent = shinIsStaffMode ? "담당자 대시보드" : "신창점 대시보드";
+      shinBtn.innerHTML = shinIsStaffMode ? "👨‍💼 담당자 대시보드" : "💙 신창점 대시보드";
     };
 
     const showShin = () => {
-      console.log('신창점 컨테이너 표시, 스태프 모드:', shinIsStaffMode);
       shinContainer.hidden = false;
       dataFrame.hidden = true;
       
-      // 컨테이너 높이 강제 설정
       shinContainer.style.display = 'flex';
       shinContainer.style.height = '100%';
       shinContainer.style.flexGrow = '1';
@@ -402,14 +591,12 @@
       shinBranchFrame.hidden = shinIsStaffMode;
       shinStaffFrame.hidden = !shinIsStaffMode;
       
-      // iframe 크기 재계산 트리거
       setTimeout(() => {
         window.dispatchEvent(new Event('resize'));
       }, 100);
     };
 
     const showCommon = (url) => {
-      console.log('일반 페이지 표시:', url);
       shinContainer.hidden = true;
       shinContainer.style.display = 'none';
       dataFrame.hidden = false;
@@ -419,48 +606,75 @@
       updateShinLabel();
     };
 
-    // ✅ 메인 버튼들 이벤트
     function setupMainButtons() {
-      // 일반 메인 버튼들
+      // 일반 메인 버튼들 (서브 버튼 없음)
       ['button1', 'button2', 'button3', 'button4', 'button6', 'button7', 'button8'].forEach(buttonId => {
         document.getElementById(buttonId).addEventListener('click', () => {
           activateButton(document.getElementById(buttonId), true);
           branchSubContainer.classList.remove('show');
+          branchSubVisible = false;
           shinContainer.hidden = true;
           dataFrame.hidden = false;
           updateFrame(dataUrls[buttonId]);
+          
+          // 모바일에서 데이터 컨테이너로 스크롤
+          scrollToElement(dataFrameContainer, 10);
         });
       });
 
-      // 지점 대시보드 버튼 (button5)
+      // 지점 대시보드 버튼 (개선된 토글 기능)
       document.getElementById('button5').addEventListener('click', () => {
         activateButton(document.getElementById('button5'), true);
-        branchSubContainer.classList.add('show');
         
-        // 기본으로 첫 번째 지점 버튼 활성화
-        branchButtons.forEach(b => b.classList.remove("active"));
-        branchButtons[0].classList.add("active");
+        if (!branchSubVisible) {
+          // 서브 버튼 표시
+          branchSubContainer.classList.add('show');
+          branchSubVisible = true;
+          
+          // 마지막 선택된 지점 버튼 활성화 (또는 첫 번째)
+          branchButtons.forEach((b, index) => {
+            b.classList.remove("active");
+            if (index === lastSelectedBranchIndex) {
+              b.classList.add("active");
+            }
+          });
+          
+          // 마지막 선택된 지점의 데이터 로드
+          const selectedButton = branchButtons[lastSelectedBranchIndex];
+          if (selectedButton === shinBtn) {
+            showShin();
+          } else {
+            shinContainer.hidden = true;
+            dataFrame.hidden = false;
+            updateFrame(selectedButton.dataset.url);
+          }
+          
+          // 모바일에서 서브 버튼으로 스크롤
+          scrollToElement(branchSubContainer, 10);
+        } else {
+          // 서브 버튼 숨기기 (데이터는 그대로 유지)
+          branchSubContainer.classList.remove('show');
+          branchSubVisible = false;
+          
+          // 모바일에서 데이터 컨테이너로 스크롤
+          scrollToElement(dataFrameContainer, 10);
+        }
         
-        shinContainer.hidden = true;
-        dataFrame.hidden = false;
-        updateFrame(branchButtons[0].dataset.url);
-        
-        shinIsStaffMode = false;
         updateShinLabel();
       });
     }
 
-    // ✅ 지점 서브 버튼들 이벤트 (EntireDashboard 로직 완전 재현)
     function setupBranchButtons() {
-      branchButtons.forEach(btn => {
+      branchButtons.forEach((btn, index) => {
         btn.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
 
+          // 선택된 지점 인덱스 저장
+          lastSelectedBranchIndex = index;
+
           if (btn === shinBtn) {
-            // 신창점 버튼 클릭 시 EntireDashboard와 동일한 동작
             if (!shinBtn.classList.contains("active")) {
-              // 처음 클릭 시 활성화
               activateButton(shinBtn);
               shinIsStaffMode = false;
               updateShinLabel();
@@ -468,39 +682,29 @@
               return;
             }
             
-            // 이미 활성화된 상태에서 클릭 시 토글
             shinIsStaffMode = !shinIsStaffMode;
             updateShinLabel();
             showShin();
             return;
           }
 
-          // 다른 지점 버튼들
           activateButton(btn);
           showCommon(btn.dataset.url);
         });
       });
     }
 
-    // ✅ 초기화
     document.addEventListener('DOMContentLoaded', function() {
       setupMainButtons();
       setupBranchButtons();
       
-      // 초기 로드
       updateFrame(dataUrls.button1);
       
-      // 신창점 초기화
       shinIsStaffMode = false;
       updateShinLabel();
       
-      console.log('통합 대시보드 초기화 완료 - 신창점 전환 기능 포함');
+      console.log('Step 1 최종 완료: 카드 크기 축소 + 개선된 토글 + 자동 스크롤 수정');
     });
-
-    // ✅ 아임웹 환경 감지
-    if (window.parent !== window) {
-      console.log('아임웹 iframe 환경에서 실행 중 - 신창점 전환 기능 활성화됨');
-    }
   </script>
 </body>
 </html>
