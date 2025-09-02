@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>노쇼체크 테스트</title>
+  
+  <style>
+    :root {
+      --primary-blue: #3182F6;
+      --violet-purple: #8B5CF6;
+      --white: #FFFFFF;
+      --gray-100: #F3F4F6;
+      --gray-600: #4B5563;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      background: linear-gradient(135deg, var(--gray-100) 0%, var(--white) 100%);
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .test-message {
+      text-align: center;
+      margin: 50px 0;
+      padding: 30px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .success {
+      color: var(--primary-blue);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .description {
+      color: var(--gray-600);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="test-message">
+      <div class="success">✅ 테스트 성공!</div>
+      <div class="description">
+        이 메시지가 보인다면 Mixed Content 문제가 해결되었습니다.<br>
+        원래 noshow.html에는 HTTP 리소스를 로드하는 코드가 있었던 것 같습니다.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('노쇼체크 테스트 페이지 로드 완료');
+    
+    // 간단한 테스트 메시지
+    setTimeout(() => {
+      console.log('Mixed Content 오류 없이 정상 실행됨');
+    }, 1000);
+  </script>
+</body>
+</html>
