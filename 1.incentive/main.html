@@ -258,41 +258,6 @@
       flex-grow: 1;
     }
 
-    .shin-container {
-      flex-grow: 1;
-      transition: opacity .3s ease;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-    }
-
-    .shin-stack {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 400px;
-      border: 1px solid var(--gray-200);
-      border-radius: 12px;
-      box-sizing: border-box;
-      flex-grow: 1;
-      overflow: hidden;
-    }
-
-    .shin-stack iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      border: 0;
-      border-radius: 12px;
-      transform: scale(1.0);
-      transform-origin: top left;
-      background: var(--white);
-    }
-
     /* 로딩 스타일 */
     .loading-overlay {
       position: absolute;
@@ -343,19 +308,24 @@
         border-radius: 12px;
       }
 
+      /* 모바일: 메인 버튼 4열 그리드로 균등 배치 (더 컴팩트) */
       .toggle-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        width: 100%;
       }
       
       .toggle-button {
-        padding: 12px 8px;
-        font-size: 12px;
+        padding: 9px 6px;
+        font-size: 10px;
         border-radius: 10px;
+        min-width: 0;
       }
 
       .button-icon {
-        font-size: 20px;
+        font-size: 16px;
+        margin-bottom: 0;
       }
 
       .branch-buttons {
@@ -376,22 +346,9 @@
         border-radius: 12px !important;
       }
 
-      .shin-stack iframe {
-        width: 110% !important;
-        height: 100% !important;
-        transform: scale(0.91) !important;
-        transform-origin: top left !important;
-        border-radius: 12px !important;
-      }
-
       .dataFrame-container {
         border-radius: 12px;
         height: 800px;
-        min-height: 800px;
-      }
-
-      .shin-stack {
-        border-radius: 12px;
         min-height: 800px;
       }
     }
@@ -445,35 +402,26 @@
           <div class="button-icon">❌</div>
           노쇼체크
         </button>
-        <button class="toggle-button" id="button8" style="display: none;">
-          <div class="button-icon">📦</div>
-          배송상품 확인
-        </button>
       </div>
 
-      <!-- 지점 대시보드 서브 버튼들 (통합된 5개 버튼) -->
+      <!-- 지점 대시보드 서브 버튼들 (통합된 4개 버튼) -->
       <div class="branch-sub-container" id="branchSubContainer">
         <div class="branch-buttons">
           <button class="branch-toggle-button sangmu active" 
             data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_ji8k9bzrxd">
-            🌿 상무점 대시보드
+            💚 상무점 대시보드
           </button>
           <button class="branch-toggle-button sinchang" 
-            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_lecxahurxd" 
-            id="shinBtn">
+            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_mx46oeosxd">
             💙 신창점 대시보드
           </button>
           <button class="branch-toggle-button ochi" 
-            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_w9jv4nzrxd">
+            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_tbt1k5osxd">
             🧡 오치점 대시보드
           </button>
           <button class="branch-toggle-button staff" 
-            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_d1s8t8pavd">
+            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_rk46uqpsxd">
             👨‍💼 전지점 담당자별 등록률
-          </button>
-          <button class="branch-toggle-button staff" 
-            data-url="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_xtwspkiuvd">
-            ✅ 첫재등록 대상자 출석률
           </button>
         </div>
       </div>
@@ -482,18 +430,7 @@
     <div class="dataFrame-container" id="dataFrameContainer">
       <div class="loading-overlay"></div>
       <div class="loader"></div>
-      
-      <div id="shinContainer" class="shin-container" hidden>
-        <div class="shin-stack">
-          <iframe id="shinBranchFrame"
-            src="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_lecxahurxd"
-            title="신창점 대시보드" allowfullscreen loading="eager"></iframe>
-          <iframe id="shinStaffFrame"
-            src="https://lookerstudio.google.com/embed/reporting/64be6fe1-640e-457b-9108-1c70d60e666e/page/p_gfze1gk9ud"
-            title="담당자 대시보드" allowfullscreen loading="eager" hidden></iframe>
-        </div>
-      </div>
-      
+
       <iframe id="dataFrame"></iframe>
     </div>
   </div>
@@ -503,13 +440,8 @@
     const buttons = document.querySelectorAll('.toggle-button');
     const branchButtons = document.querySelectorAll('.branch-toggle-button');
     const branchSubContainer = document.getElementById('branchSubContainer');
-    const shinContainer = document.getElementById('shinContainer');
-    const shinBranchFrame = document.getElementById('shinBranchFrame');
-    const shinStaffFrame = document.getElementById('shinStaffFrame');
-    const shinBtn = document.getElementById('shinBtn');
     const dataFrameContainer = document.getElementById('dataFrameContainer');
 
-    let shinIsStaffMode = false;
     let branchSubVisible = false;
     let lastSelectedBranchIndex = 0; // 마지막 선택된 지점 기억
 
@@ -519,8 +451,7 @@
       button3: "https://soslyk.github.io/imweb/1.incentive/RewardPolicy.html",
       button4: "https://soslyk.github.io/imweb/1.incentive/ComparisonBranch.html",
       button6: "https://crossfitpaan.com/carryover",
-      button7: "https://soslyk.github.io/imweb/1.incentive/noshow.html",
-      button8: "https://crossfitpaan.com/checkdelivery"
+      button7: "https://soslyk.github.io/imweb/1.incentive/noshow.html"
     };
 
     // 개선된 모바일 화면 스크롤 함수
@@ -573,52 +504,13 @@
       btn.classList.add("active");
     };
 
-    const updateShinLabel = () => {
-      shinBtn.innerHTML = shinIsStaffMode ? "👨‍💼 담당자 대시보드" : "💙 신창점 대시보드";
-    };
-
-    const showShin = () => {
-      shinContainer.hidden = false;
-      dataFrame.hidden = true;
-      
-      shinContainer.style.display = 'flex';
-      shinContainer.style.height = '100%';
-      shinContainer.style.flexGrow = '1';
-      
-      const shinStack = shinContainer.querySelector('.shin-stack');
-      if (shinStack) {
-        shinStack.style.height = '100%';
-        shinStack.style.flexGrow = '1';
-        shinStack.style.minHeight = '400px';
-      }
-      
-      shinBranchFrame.hidden = shinIsStaffMode;
-      shinStaffFrame.hidden = !shinIsStaffMode;
-      
-      setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-      }, 100);
-    };
-
-    const showCommon = (url) => {
-      shinContainer.hidden = true;
-      shinContainer.style.display = 'none';
-      dataFrame.hidden = false;
-      dataFrame.style.display = 'block';
-      updateFrame(url);
-      shinIsStaffMode = false;
-      updateShinLabel();
-    };
-
     function setupMainButtons() {
       // 일반 메인 버튼들 (서브 버튼 없음)
-      ['button1', 'button2', 'button3', 'button4', 'button6', 'button7', 'button8'].forEach(buttonId => {
+      ['button1', 'button2', 'button3', 'button4', 'button6', 'button7'].forEach(buttonId => {
         document.getElementById(buttonId).addEventListener('click', () => {
           activateButton(document.getElementById(buttonId), true);
           branchSubContainer.classList.remove('show');
           branchSubVisible = false;
-          shinContainer.hidden = true;
-          dataFrame.hidden = false;
           updateFrame(dataUrls[buttonId]);
           
           // 모바일에서 데이터 컨테이너로 스크롤
@@ -645,13 +537,7 @@
           
           // 마지막 선택된 지점의 데이터 로드
           const selectedButton = branchButtons[lastSelectedBranchIndex];
-          if (selectedButton === shinBtn) {
-            showShin();
-          } else {
-            shinContainer.hidden = true;
-            dataFrame.hidden = false;
-            updateFrame(selectedButton.dataset.url);
-          }
+          updateFrame(selectedButton.dataset.url);
           
           // 모바일에서 서브 버튼으로 스크롤
           scrollToElement(branchSubContainer, 10);
@@ -663,8 +549,6 @@
           // 모바일에서 데이터 컨테이너로 스크롤
           scrollToElement(dataFrameContainer, 10);
         }
-        
-        updateShinLabel();
       });
     }
 
@@ -677,23 +561,8 @@
           // 선택된 지점 인덱스 저장
           lastSelectedBranchIndex = index;
 
-          if (btn === shinBtn) {
-            if (!shinBtn.classList.contains("active")) {
-              activateButton(shinBtn);
-              shinIsStaffMode = false;
-              updateShinLabel();
-              showShin();
-              return;
-            }
-            
-            shinIsStaffMode = !shinIsStaffMode;
-            updateShinLabel();
-            showShin();
-            return;
-          }
-
           activateButton(btn);
-          showCommon(btn.dataset.url);
+          updateFrame(btn.dataset.url);
         });
       });
     }
@@ -703,11 +572,6 @@
       setupBranchButtons();
       
       updateFrame(dataUrls.button1);
-      
-      shinIsStaffMode = false;
-      updateShinLabel();
-      
-      console.log('Step 1 최종 완료: 카드 크기 축소 + 개선된 토글 + 자동 스크롤 수정');
     });
   </script>
 </body>
