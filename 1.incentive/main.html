@@ -20,6 +20,7 @@
       --branch-sangmu: #10B981;
       --branch-sinchang: #3B82F6;
       --branch-ochi: #F59E0B;
+      --branch-bonchon: #46BDC6;
     }
 
     * {
@@ -176,7 +177,7 @@
 
     .branch-buttons {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
     }
 
@@ -226,6 +227,11 @@
     .branch-toggle-button.ochi.active {
       background: linear-gradient(135deg, var(--branch-ochi) 0%, #FBBF24 100%);
       box-shadow: 0 2px 8px 0 rgba(245, 158, 11, 0.3);
+    }
+
+    .branch-toggle-button.bonchon.active {
+      background: linear-gradient(135deg, var(--branch-bonchon) 0%, #6AD5DC 100%);
+      box-shadow: 0 2px 8px 0 rgba(70, 189, 198, 0.3);
     }
 
     .branch-toggle-button.staff.active {
@@ -409,15 +415,19 @@
         <div class="branch-buttons">
           <button class="branch-toggle-button sangmu active" 
             data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_ji8k9bzrxd">
-            💚 상무점 대시보드
+            💚 상무점
           </button>
           <button class="branch-toggle-button sinchang" 
             data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_mx46oeosxd">
-            💙 신창점 대시보드
+            💙 신창점
           </button>
           <button class="branch-toggle-button ochi" 
             data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_tbt1k5osxd">
-            🧡 오치점 대시보드
+            🧡 오치점
+          </button>
+          <button class="branch-toggle-button bonchon" 
+            data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_tbt1k5osxd">
+            🩵 본촌점
           </button>
           <button class="branch-toggle-button staff" 
             data-url="https://lookerstudio.google.com/embed/reporting/695906da-94dd-4027-aa85-300c66ba158e/page/p_rk46uqpsxd">
