@@ -27,8 +27,8 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 98%;
-      overflow: hidden; /* 가로 스크롤 방지 (필요시) */
+      height: 100%;
+      overflow: hidden; /* 페이지 스크롤 잠금 */
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; /* 시스템 폰트 사용 */
     }
 
@@ -36,7 +36,7 @@
     .container {
       width: 97%; /* 전체 너비의 97% 사용 */
       max-width: 100%; /* PC에서 최대 너비 제한 */
-      height: 125%;
+      height: 100%;
       margin: 0 auto; /* 가운데 정렬 */
       padding: 10px; /* 내부 여백 */
       border-radius: 12px; /* 모서리 둥글게 */
@@ -142,7 +142,10 @@
     .dataFrame-container {
       flex-grow: 1; /* 남은 세로 공간을 모두 차지하도록 설정 */
       transition: opacity 0.5s;
-      overflow: hidden; /* 내부 iframe 스크롤을 위해 필요 */
+      overflow-y: auto; /* 세로 스크롤만 허용 */
+      overflow-x: hidden; /* 가로 스크롤 차단 */
+      overscroll-behavior: contain; /* 컨테이너 밖 스크롤 전파 방지 */
+      -webkit-overflow-scrolling: touch;
       display: flex; /* 내부 iframe 정렬을 위해 추가 */
       flex-direction: column; /* 세로 방향으로 */
     }
@@ -151,14 +154,11 @@
     iframe {
       display: block;
       width: 100%; /* 컨테이너 너비에 맞춤 */
-      transform: scale(0.78);
-      transform-origin: top left;
       border: 1px solid #EAEDEF;
       border-radius: 12px;
       margin: 0 auto; /* 상하 마진 제거, 좌우 중앙 */
       box-sizing: border-box; /* 테두리를 크기에 포함 */
-      /* height: auto; */ /* flex-grow가 있으므로 auto 대신 100% 또는 삭제 */
-      height: auto; /* dataFrame-container 높이에 맞춰짐 */
+      height: 100%;
       flex-grow: 1; /* dataFrame-container 내에서 남은 공간 채우기 */
     }
 
@@ -172,7 +172,7 @@
       min-height: 100vh; /* 사용자 제공 코드 유지 */
       box-shadow: none; /* 모바일에서는 그림자 제거 (선택 사항) */
       border-radius: 8px;
-      height: 165vh; /* 사용자 제공 코드 유지 (길이 문제 원인 가능성 높음) */
+      height: 100vh;
       }
 
     /* .select-container 스타일은 제거됨 */
@@ -198,16 +198,17 @@
       margin: 0; /* 외부 여백 제거 */
       box-shadow: none; /* 모바일 그림자 제거 (선택 사항) */
       flex-grow: 1; /* 추가됨 (이전 코드 참고) */
-      overflow: hidden; /* 추가됨 (이전 코드 참고) */
+      overflow-y: auto; /* 세로 스크롤만 허용 */
+      overflow-x: hidden; /* 가로 스크롤 차단 */
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       }
 
     iframe {
-      /* width, transform, transform-origin은 사용자 제공 코드 유지 */
-      width: 845px;
+      width: 200%;
+      height: 200%;
       transform: scale(0.5);
       transform-origin: top left;
-      /* height는 사용자 제공 코드 유지 (길이 문제 및 스케일링 고려 필요) */
-      height: calc(100vh - 20px);
       /* 스타일 유지 */
       border-width: 1px;
       border-radius: 8px; /* 모바일에서 모서리 둥글기 줄이기 (선택 사항) */
@@ -227,10 +228,8 @@
     @media screen and (min-width: 769px) {
        /* PC iframe 높이 재정의 (기본 스타일에서 height: auto 제거하고 설정) */
        iframe {
-         /* PC 화면 기준 높이: 전체 높이 - 상단 요소들 높이 추정치 - 약간의 여유분 */
-         /* .container가 flex-grow: 1 이므로 iframe도 100%로 채우거나 vh 단위 사용 가능 */
-         height: calc(100vh - 130px); /* 예시 값, 상단 버튼 높이 고려하여 조정 */
-         width: 128%; /* PC에서는 너비 100% */  
+         height: 100%;
+         width: 100%;
        }
       /* PC에서만 필요한 스타일 추가 */
       .mobile-picker-container {
