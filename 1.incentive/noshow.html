@@ -11,6 +11,16 @@
       --kakao-yellow: #1F3EF5;
       --kakao-black: #000000;
       --kakao-gray: #666666;
+      --white: #FFFFFF;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-700: #374151;
+      --primary-blue: #3182F6;
+      --primary-blue-light: #4593FC;
+      --branch-sangmu: #10B981;
+      --branch-sinchang: #3B82F6;
+      --branch-ochi: #F59E0B;
+      --branch-bonchon: #46BDC6;
     }
 
     /* 기본 HTML, Body 스타일 초기화 */
@@ -42,55 +52,78 @@
       align-items: center;
        /* 연도/월 선택이 없으므로 상단 여백 추가 */
       margin-top: 10px;
-      margin-bottom: 15px; /* 하단 여백 증가 */
-      background-color: #FFFFFF;
+      margin-bottom: 12px;
+      background-color: var(--gray-100);
       color: #333D4B;
-      border-radius: 12px;
-      padding: 10px; /* 패딩 조정 */
+      border-radius: 10px;
+      padding: 8px;
       font-family: "Pretendard", sans-serif;
       font-weight: bold;
       line-height: 1.5;
     }
 
-     /* 토글 버튼 컨테이너 스타일 */
-     .toggle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        max-width: 600px; /* 버튼 그룹 최대 너비 제한 (PC) */
-        background-color: #F0F0F0; /* 배경색 변경 */
-        border-radius: 8px;
-        padding: 4px;
-        flex-wrap: wrap; /* 모바일에서 버튼 줄 바꿈 허용 */
-        gap: 10px; /* 버튼 사이 간격 (wrap 시 사용) */
-      }
+    /* 지점 버튼 컨테이너 스타일 */
+    .branch-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-width: 100%;
+    }
 
-      /* 토글 버튼 기본 스타일 */
-      .toggle-button {
-        border: none;
-        background: transparent; /* 기본 배경 투명 */
-        color: #555555; /* 기본 글자색 변경 */
-        padding: 8px 16px; /* 패딩 조정 */
-        cursor: pointer;
-        border-radius: 6px;
-        transition: background 0.3s, color 0.3s;
-        /* margin 제거 (gap 사용) */
-        font-size: 14px; /* 글자 크기 약간 줄임 */
-        font-weight: 500;
-        flex-grow: 1; /* 가능한 공간 차지 */
-        flex-basis: auto; /* 기본 크기 자동 */
-        text-align: center;
-        white-space: nowrap; /* 버튼 이름 줄바꿈 방지 */
-      }
+    .branch-toggle-button {
+      border: 2px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-700);
+      padding: 8px 6px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 36px;
+      width: 100%;
+      white-space: nowrap;
+    }
 
-      /* 토글 버튼 활성화 상태 */
-      .toggle-button.active {
-        background: var(--kakao-yellow); /* 활성 배경 흰색 */
-        color: #FFFFFF;
-        font-weight: 600; /* 약간 더 굵게 */
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      }
+    .branch-toggle-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-blue);
+    }
+
+    .branch-toggle-button.active {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+      color: var(--white);
+      border-color: var(--primary-blue);
+      box-shadow: 0 2px 8px 0 rgba(49, 130, 246, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .branch-toggle-button.sangmu.active {
+      background: linear-gradient(135deg, var(--branch-sangmu) 0%, #34D399 100%);
+      box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3);
+    }
+
+    .branch-toggle-button.sinchang.active {
+      background: linear-gradient(135deg, var(--branch-sinchang) 0%, #60A5FA 100%);
+      box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.3);
+    }
+
+    .branch-toggle-button.ochi.active {
+      background: linear-gradient(135deg, var(--branch-ochi) 0%, #FBBF24 100%);
+      box-shadow: 0 2px 8px 0 rgba(245, 158, 11, 0.3);
+    }
+
+    .branch-toggle-button.bonchon.active {
+      background: linear-gradient(135deg, var(--branch-bonchon) 0%, #6AD5DC 100%);
+      box-shadow: 0 2px 8px 0 rgba(70, 189, 198, 0.3);
+    }
 
     /* 데이터 표시 영역 컨테이너 스타일 */
     .dataFrame-container {
@@ -179,18 +212,15 @@
          margin-bottom: 10px;
       }
 
-      .toggle-container {
-         max-width: 100%; /* 모바일 너비 제한 해제 */
-         background-color: #F0F0F0;
-         border-radius: 8px;
-         padding: 4px;
+      .branch-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
       }
 
-      .toggle-button {
-        padding: 7px 12px;
-        font-size: 12px;
-        flex-grow: 1;
-        flex-basis: calc(33.333% - 8px);
+      .branch-toggle-button {
+        padding: 8px 6px;
+        font-size: 11px;
+        height: 34px;
       }
 
       .dataFrame-container {
@@ -236,10 +266,11 @@
 
   <div class="container">
     <div class="result-container">
-      <div class="toggle-container">
-        <button class="toggle-button active" id="sangmuButton">상무점 노쇼</button>
-        <button class="toggle-button" id="sinchangButton">신창점 노쇼</button>
-        <button class="toggle-button" id="ochiButton">오치점 노쇼</button>
+      <div class="branch-buttons">
+        <button class="branch-toggle-button sangmu active" id="sangmuButton">상무점 노쇼</button>
+        <button class="branch-toggle-button sinchang" id="sinchangButton">신창점 노쇼</button>
+        <button class="branch-toggle-button ochi" id="ochiButton">오치점 노쇼</button>
+        <button class="branch-toggle-button bonchon" id="bonchonButton">본촌점 노쇼</button>
       </div>
     </div>
 
@@ -259,7 +290,8 @@
     const sangmuButton = document.getElementById('sangmuButton');
     const sinchangButton = document.getElementById('sinchangButton');
     const ochiButton = document.getElementById('ochiButton');
-    const buttons = [sangmuButton, sinchangButton, ochiButton]; // 버튼 배열
+    const bonchonButton = document.getElementById('bonchonButton');
+    const buttons = [sangmuButton, sinchangButton, ochiButton, bonchonButton]; // 버튼 배열
     const dataFrameContainer = document.getElementById('dataFrameContainer');
 
     // 데이터 표시 iframe 요소 가져오기 (ID 변경)
@@ -278,7 +310,8 @@
         '2025-09': "https://docs.google.com/spreadsheets/d/1__v4XbGiUaMSEDWJOAlLVLsMDARqRfZWjqGLvrlPoPw/edit?gid=787119898#gid=787119898",
         '2025-10': "",
         '2025-11': "https://docs.google.com/spreadsheets/d/14YWqZS5oNd-AAGhF1y5nN5JX9Ia89L7K2f_mpKB9pII/edit?gid=787119898#gid=787119898",
-        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=787119898#gid=787119898"
+        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=787119898#gid=787119898",
+        '2026-01': "https://docs.google.com/spreadsheets/d/1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc/edit?gid=787119898#gid=787119898"
       },
       sinchang: {
         '2025-01': "", '2025-02': "", '2025-03': "",
@@ -290,7 +323,8 @@
         '2025-09': "https://docs.google.com/spreadsheets/d/1__v4XbGiUaMSEDWJOAlLVLsMDARqRfZWjqGLvrlPoPw/edit?gid=10343564#gid=10343564",
         '2025-10': "",
         '2025-11': "https://docs.google.com/spreadsheets/d/14YWqZS5oNd-AAGhF1y5nN5JX9Ia89L7K2f_mpKB9pII/edit?gid=10343564#gid=10343564",
-        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=10343564#gid=10343564"
+        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=10343564#gid=10343564",
+        '2026-01': "https://docs.google.com/spreadsheets/d/1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc/edit?gid=10343564#gid=10343564"
       },
       ochi: {
         '2025-01': "", '2025-02': "", '2025-03': "",
@@ -302,7 +336,21 @@
         '2025-09': "https://docs.google.com/spreadsheets/d/1__v4XbGiUaMSEDWJOAlLVLsMDARqRfZWjqGLvrlPoPw/edit?gid=1106137574#gid=1106137574",
         '2025-10': "",
         '2025-11': "https://docs.google.com/spreadsheets/d/14YWqZS5oNd-AAGhF1y5nN5JX9Ia89L7K2f_mpKB9pII/edit?gid=1106137574#gid=1106137574",
-        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=1106137574#gid=1106137574"
+        '2025-12': "https://docs.google.com/spreadsheets/d/1PJYoaiF4OINOldnTGQDXtgNlXoUe7MeOJzbtHhXORYc/edit?gid=1106137574#gid=1106137574",
+        '2026-01': "https://docs.google.com/spreadsheets/d/1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc/edit?gid=1106137574#gid=1106137574"
+      },
+      bonchon: {
+        '2025-01': "", '2025-02': "", '2025-03': "",
+        '2025-04': "",
+        '2025-05': "",
+        '2025-06': "",
+        '2025-07': "",
+        '2025-08': "",
+        '2025-09': "",
+        '2025-10': "",
+        '2025-11': "",
+        '2025-12': "",
+        '2026-01': "https://docs.google.com/spreadsheets/d/1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc/edit?gid=625907171#gid=625907171"
       }
     };
 
@@ -371,6 +419,7 @@
     sangmuButton.addEventListener('click', () => handleButtonClick(sangmuButton, 'sangmu'));
     sinchangButton.addEventListener('click', () => handleButtonClick(sinchangButton, 'sinchang'));
     ochiButton.addEventListener('click', () => handleButtonClick(ochiButton, 'ochi'));
+    bonchonButton.addEventListener('click', () => handleButtonClick(bonchonButton, 'bonchon'));
 
     // 초기 로드 상태 설정 함수
     function initializeView() {
