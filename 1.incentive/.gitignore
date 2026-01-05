@@ -1,3 +1,7 @@
 .DS_Store
+.env
+server.js
+package.json
+package-lock.json
 paan-internal-portal/
 paan-portal/

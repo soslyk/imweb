@@ -3,72 +3,145 @@
 <head>
     <title>유효 회원수 비교</title>
     <style>
+        :root {
+            --white: #FFFFFF;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-700: #374151;
+            --primary-blue: #3182F6;
+            --primary-blue-light: #4593FC;
+            --branch-sangmu: #10B981;
+            --branch-sinchang: #3B82F6;
+            --branch-ochi: #F59E0B;
+            --branch-bonchon: #46BDC6;
+            --violet-purple: #8B5CF6;
+        }
+
         .result-container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 0;
-            background-color: #FFFFFF;
+            background-color: var(--gray-100);
             color: #333D4B;
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 8px;
             font-family: "Pretendard", sans-serif;
             font-weight: bold;
             line-height: 1.5;
         }
 
         .toggle-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             width: 100%;
-            max-width: 600px;
-            background-color: #F0F0F0;
-            border-radius: 8px;
-            padding: 4px;
-            flex-wrap: wrap;
-            gap: 10px;
+            max-width: 100%;
+            gap: 8px;
+        }
+
+        #year-buttons {
+            width: 50%;
+            margin: 0 auto;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .toggle-button {
-            border: none;
-            background: transparent;
-            color: #555555;
-            padding: 8px 16px;
+            border: 2px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-700);
+            padding: 8px 6px;
             cursor: pointer;
             border-radius: 6px;
-            transition: background 0.3s, color 0.3s;
-            font-size: 14px;
-            font-weight: 500;
-            flex-grow: 1;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 600;
             text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            height: 36px;
+            width: 100%;
             white-space: nowrap;
         }
 
+        .toggle-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-blue);
+        }
+
         .toggle-button.active {
-            background: #FEE500;
-            color: var(--kakao-black);
-            font-weight: 600;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            color: var(--white);
+            border-color: var(--primary-blue);
+            box-shadow: 0 2px 8px 0 rgba(49, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .toggle-button.sangmu.active {
+            background: linear-gradient(135deg, var(--branch-sangmu) 0%, #34D399 100%);
+            box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3);
+        }
+
+        .toggle-button.sinchang.active {
+            background: linear-gradient(135deg, var(--branch-sinchang) 0%, #60A5FA 100%);
+            box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.3);
+        }
+
+        .toggle-button.ochi.active {
+            background: linear-gradient(135deg, var(--branch-ochi) 0%, #FBBF24 100%);
+            box-shadow: 0 2px 8px 0 rgba(245, 158, 11, 0.3);
+        }
+
+        .toggle-button.bonchon.active {
+            background: linear-gradient(135deg, var(--branch-bonchon) 0%, #6AD5DC 100%);
+            box-shadow: 0 2px 8px 0 rgba(70, 189, 198, 0.3);
+        }
+
+        .toggle-button.year.active {
+            background: linear-gradient(135deg, var(--violet-purple) 0%, #A78BFA 100%);
+            border-color: var(--violet-purple);
+            box-shadow: 0 2px 8px 0 rgba(139, 92, 246, 0.3);
+        }
+
+        @media screen and (max-width: 768px) {
+            .toggle-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+            }
+
+            .toggle-button {
+                font-size: 11px;
+                height: 34px;
+                padding: 8px 6px;
+            }
+
+            #year-buttons {
+                width: 100%;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
         }
     </style>
 </head>
 <body>
     <div class="result-container">
         <div class="toggle-container" id="branch-buttons">
-            <button class="toggle-button active" data-branch="상무점">상무점</button>
-            <button class="toggle-button active" data-branch="신창점">신창점</button>
-            <button class="toggle-button active" data-branch="오치점">오치점</button>
+            <button class="toggle-button sangmu active" data-branch="상무점">상무점</button>
+            <button class="toggle-button sinchang active" data-branch="신창점">신창점</button>
+            <button class="toggle-button ochi active" data-branch="오치점">오치점</button>
+            <button class="toggle-button bonchon" data-branch="본촌점">본촌점</button>
         </div>
     </div>
     <div class="result-container">
         <div class="toggle-container" id="year-buttons">
-            <button class="toggle-button active" data-year="2024">2024년</button>
-            <button class="toggle-button active" data-year="2025">2025년</button>
+            <button class="toggle-button year active" data-year="2024">2024년</button>
+            <button class="toggle-button year active" data-year="2025">2025년</button>
+            <button class="toggle-button year active" data-year="2026">2026년</button>
         </div>
     </div>
     <div>
-        <canvas id="memberChart" style="height: 600px;"></canvas>
+        <canvas id="memberChart" style="height: 800px;"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -81,42 +154,29 @@
         let memberChart;
         let allData = [];
 
-        const dataUrl2024 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfS6FBJfF9AYWutnEAfbY0TYKwcKSfhXW30MZ3A0tZnjVoMIETs-ggkJ6GLeeRseFpWM53-cqiSmLU/pub?gid=1293114069&single=true&output=csv';
-        const dataUrl2025 = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQVgqS2NQZ6HBXexX2zRBgn8KqbN4uFzwdwqI3xi12Z0uXvXHG_RlR-cizEbtHOPaysG20NCvexJrdD/pub?gid=1293114069&single=true&output=csv';
+        const apiOverride = new URLSearchParams(window.location.search).get('api');
+        const API_URL = apiOverride || 'http://192.168.0.4:3000/api/yearly-members';
 
-        function getDataUrl(year) {
-            return year === 2024 ? dataUrl2024 : dataUrl2025;
+        function buildApiUrl(selectedYears) {
+            const minYear = Math.min(...selectedYears);
+            const maxYear = Math.max(...selectedYears);
+            const params = new URLSearchParams({
+                start: `${minYear}-01-01`,
+                end: `${maxYear}-12-31`,
+            });
+            return `${API_URL}?${params.toString()}`;
         }
 
-        function parseCSV(csvText) {
-            const lines = csvText.split('\n');
-            const headers = lines[0].split(',').map(header => header.trim());
-            const branchNames = headers.slice(1);
-
-            return lines.slice(1).flatMap(line => {
-                const values = line.split(',');
-                const rawDate = values[0]?.trim();
-                if (!rawDate) return [];
-
-                const isoDate = rawDate.includes('.') ? rawDate.replace(/\./g, '-').trim() : rawDate.trim();
-                const dateObj = new Date(isoDate);
-                const now = new Date();
-
-                return branchNames.map((branch, index) => {
-                    const rawValue = values[index + 1]?.trim();
-                    const memberCount = dateObj > now ? null : (parseInt(rawValue) || 0);
-                    const adjustedDate = new Date(dateObj);
-                    if (dateObj.getFullYear() === 2025) {
-                        adjustedDate.setFullYear(2024);
-                    }
-                    return {
-                        날짜: adjustedDate.toISOString(),
-                        원래날짜: dateObj.toISOString(),
-                        지점명: branch,
-                        연도: dateObj.getFullYear(),
-                        유효회원수: memberCount
-                    };
-                });
+        function normalizeRows(rows) {
+            const now = new Date();
+            return rows.map((row) => {
+                const dateObj = new Date(row.date);
+                return {
+                    원래날짜: dateObj.toISOString(),
+                    지점명: row.branch,
+                    연도: dateObj.getFullYear(),
+                    유효회원수: dateObj > now ? null : row.count,
+                };
             });
         }
 
@@ -138,27 +198,53 @@
         }
 
         function getColorByKey(branch, year) {
-            const baseHue = branch === '상무점' ? 120 : (branch === '신창점' ? 220 : 300); // 초록, 파랑, 보라 계열
-            const lightness = year === 2024 ? 80 : 40; // 2024년이 더 밝게, 2025년이 더 진하게
-            return `hsl(${baseHue}, 70%, ${lightness}%)`;
+            const currentYear = new Date().getFullYear();
+            const yearGap = Math.max(0, currentYear - year);
+            const branchColors = {
+                '상무점': '#10B981',
+                '신창점': '#3B82F6',
+                '오치점': '#F59E0B',
+                '본촌점': '#46BDC6',
+            };
+            if (yearGap === 0) {
+                return branchColors[branch] || '#3B82F6';
+            }
+            
+            const branchHueMap = {
+                '상무점': 145,
+                '신창점': 210,
+                '오치점': 35,
+                '본촌점': 190,
+            };
+            const baseHue = branchHueMap[branch] ?? 220;
+            const saturation = yearGap === 1 ? 90 : 80;
+            const lightness = yearGap === 1 ? 65 : 78;
+            const alpha = yearGap === 1 ? 0.8 : 0.5;
+            return `hsla(${baseHue}, ${saturation}%, ${lightness}%, ${alpha})`;
         }
 
         function updateChart(filteredData) {
             const { selectedBranches, selectedYears } = getSelectedFilters();
             const datasets = [];
+            const baseYear = selectedYears.length ? Math.min(...selectedYears) : new Date().getFullYear();
+            const currentYear = new Date().getFullYear();
 
             selectedBranches.forEach(branch => {
                 selectedYears.forEach(year => {
                     const data = filteredData
                         .filter(item => item.지점명 === branch && item.연도 === year)
                         .map(item => ({
-                            x: item.날짜,
+                            x: (() => {
+                                const adjusted = new Date(item.원래날짜);
+                                adjusted.setFullYear(baseYear);
+                                return adjusted.toISOString();
+                            })(),
                             y: item.유효회원수,
                             원래날짜: item.원래날짜
                         }))
                         .sort((a, b) => new Date(a.원래날짜) - new Date(b.원래날짜));
 
-                    if (year === 2025) {
+                    if (year === currentYear) {
                         const validData = [];
                         for (const point of data) {
                             if (point.y === null || point.y === 0) break;
@@ -222,8 +308,8 @@
                                 },
                                 tooltipFormat: 'yyyy-MM-dd'
                             },
-                            min: '2024-01-01',
-                            max: '2024-12-31',
+                            min: `${baseYear}-01-01`,
+                            max: `${baseYear}-12-31`,
                             title: { display: false },
                             grid: {
                                 display: true,
@@ -269,19 +355,22 @@
             const initialYears = Array.from(yearButtons)
                 .filter(btn => btn.classList.contains('active'))
                 .map(btn => parseInt(btn.dataset.year));
+            const apiUrl = buildApiUrl(initialYears);
 
-            Promise.all(initialYears.map(year =>
-                fetch(getDataUrl(year))
-                    .then(res => res.text())
-                    .then(parseCSV)
-            )).then(dataArrays => {
-                allData = dataArrays.flat();
-                const { selectedBranches, selectedYears } = getSelectedFilters();
-                const filteredData = filterData(selectedBranches, selectedYears);
-                updateChart(filteredData);
-            }).catch(error => {
-                console.error('데이터를 불러오는 데 실패했습니다:', error);
-            });
+            fetch(apiUrl)
+                .then(res => res.json())
+                .then(payload => {
+                    if (!payload || !payload.ok) {
+                        throw new Error('API 응답 오류');
+                    }
+                    allData = normalizeRows(payload.data || []);
+                    const { selectedBranches, selectedYears } = getSelectedFilters();
+                    const filteredData = filterData(selectedBranches, selectedYears);
+                    updateChart(filteredData);
+                })
+                .catch(error => {
+                    console.error('데이터를 불러오는 데 실패했습니다:', error);
+                });
         }
 
         branchButtons.forEach(button => {
