@@ -11,6 +11,13 @@
       --kakao-yellow: #FEE500;
       --kakao-black: #000000;
       --kakao-gray: #666666;
+      --white: #FFFFFF;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-700: #374151;
+      --primary-blue: #3B82F6;
+      --primary-blue-light: #60A5FA;
+      --violet-purple: #8B5CF6;
     }
 
     /* 기본 HTML, Body 스타일 초기화 (스크롤 및 높이 문제 방지) */
@@ -35,74 +42,73 @@
       flex-direction: column; /* 세로 방향 배치 */
     }
 
-    /* 연도/월 선택 컨테이너 스타일 */
-    .select-container {
-      display: flex; /* 플렉스박스 레이아웃 */
-      gap: 10px; /* 요소 간 간격 */
-      margin-bottom: 10px; /* 하단 여백 */
-      position: sticky; /* 스크롤 시 상단 고정 */
-      top: 0; /* 상단에서 0px 위치 */
-      background: white; /* 배경색 */
-      /* border: 3px solid #000000; */
-      z-index: 10; /* 다른 요소 위에 표시 */
-      padding: 10px 0; /* 상하 여백 추가 (고정 시 콘텐츠 가림 방지) */
+    /* 연/월 + 토글 버튼 통합 컨테이너 */
+    .sub-control-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      background: var(--gray-100);
+      z-index: 10;
+      padding: 8px;
+      border-radius: 10px;
+      box-sizing: border-box;
     }
 
-    /* 전지점현황,담당자리스트 버튼 컨테이너 */
-    .result-container {
-      display: flex;
-      justify-content: center; /* 버튼 중앙 정렬 */
+    .sub-control-bar select {
+      width: 100%;
+      border: 2px solid var(--gray-200);
+      border-radius: 6px;
+      background: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-700);
+      padding: 8px 10px;
+      height: 36px;
+    }
+
+    .sub-control-bar select:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    /* 지점 대시보드 서브 버튼 스타일 */
+    .branch-toggle-button {
+      border: none;
+      background: var(--white);
+      color: var(--gray-700);
+      padding: 8px 6px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      border: 2px solid var(--gray-200);
+      display: inline-flex;
       align-items: center;
-      margin-bottom: 15px; /* 하단 여백 증가 */
-      background-color: #FFFFFF;
-      color: #333D4B;
-      border-radius: 12px;
-      padding: 0px; /* 패딩 조정 */
-      font-family: "Pretendard", sans-serif;
-      /* border: 3px solid #000000; */
-      font-weight: bold;
-      line-height: 1.5;
+      justify-content: center;
+      gap: 3px;
+      height: 36px;
+      white-space: nowrap;
     }
 
-     /* 토글 버튼 컨테이너 스타일 */
-     .toggle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        max-width: 600px; /* 버튼 그룹 최대 너비 제한 (PC) */
-        background-color: #F0F0F0; /* 배경색 변경 */
-        border-radius: 8px;
-        padding: 4px;
-        flex-wrap: wrap; /* 모바일에서 버튼 줄 바꿈 허용 */
-        gap: 10px; /* 버튼 사이 간격 (wrap 시 사용) */
-      }
+    .branch-toggle-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-blue);
+    }
 
-      /* 토글 버튼 기본 스타일 */
-      .toggle-button {
-        border: none;
-        background: transparent; /* 기본 배경 투명 */
-        color: #555555; /* 기본 글자색 변경 */
-        padding: 8px 16px; /* 패딩 조정 */
-        cursor: pointer;
-        border-radius: 6px;
-        transition: background 0.3s, color 0.3s;
-        /* margin 제거 (gap 사용) */
-        font-size: 14px; /* 글자 크기 약간 줄임 */
-        font-weight: 500;
-        flex-grow: 1; /* 가능한 공간 차지 */
-        flex-basis: auto; /* 기본 크기 자동 */
-        text-align: center;
-        white-space: nowrap; /* 버튼 이름 줄바꿈 방지 */
-      }
-
-      /* 토글 버튼 활성화 상태 */
-      .toggle-button.active {
-        background: #FEE500; /* 활성 배경 흰색 */
-        color: var(--kakao-black);
-        font-weight: 600; /* 약간 더 굵게 */
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      }
+    .branch-toggle-button.active {
+      background: linear-gradient(135deg, var(--violet-purple) 0%, #A78BFA 100%);
+      color: var(--white);
+      border-color: var(--violet-purple);
+      box-shadow: 0 2px 8px 0 rgba(139, 92, 246, 0.3);
+      transform: translateY(-1px);
+    }
 
 
     /* 데이터프레임 컨테이너 스타일 */
@@ -143,25 +149,24 @@
       height: 100vh;
       }
 
-    .select-container {
-      padding: 5px 0; /* 모바일 상하 여백 조정 */
-      margin-bottom: 5px; /* 하단 여백 축소 */
-      }
+    .sub-control-bar {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      padding: 6px;
+      margin-bottom: 8px;
+    }
 
-    select {
-      padding: 10px 12px;
-      font-size: 14px;
-      }
+    .sub-control-bar select {
+      font-size: 11px;
+      padding: 8px 8px;
+      height: 34px;
+    }
 
-    .result-container {
-      padding: 8px;
-      margin-bottom: 10px;
-      }
-
-    .toggle-button {
-      padding: 8px 16px; /* 내부 여백 축소 */
-      font-size: 12px; /* 글자 크기 축소 */
-      }
+    .branch-toggle-button {
+      font-size: 11px;
+      padding: 8px 6px;
+      height: 34px;
+    }
 
     .dataFrame-container {
       /* 모바일에서 transform 제거 */
@@ -286,16 +291,11 @@
 <body>
 
   <div class="container">
-    <div class="select-container">
+    <div class="sub-control-bar">
       <select id="yearSelect"></select>
       <select id="monthSelect"></select>
-    </div>
-
-    <div class="result-container">
-      <div class="toggle-container">
-        <button class="toggle-button active" id="resultButton">전지점 현황</button>
-        <button class="toggle-button" id="listButton">담당자 리스트</button>
-      </div>
+      <button class="branch-toggle-button active" id="resultButton">전지점 현황</button>
+      <button class="branch-toggle-button" id="listButton">담당자 리스트</button>
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
