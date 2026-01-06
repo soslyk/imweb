@@ -137,6 +137,20 @@
       flex-grow: 1; /* dataFrame-container 내에서 남은 공간 채우기 */
     }
 
+    .open-new-tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #F5F5F7;
+      color: #222222;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
     /* 모바일 화면용 스타일 (768px 이하) */
     @media screen and (max-width: 768px) {
     .container {
@@ -300,6 +314,7 @@
 
     <div class="dataFrame-container" id="dataFrameContainer">
       <iframe id="dataFrame" frameborder="0"></iframe>
+      <a class="open-new-tab" id="openInNewTab" target="_blank" rel="noopener noreferrer">새 창으로 열기</a>
     </div>
 
     <div class="mobile-picker-container" id="mobilePicker">
@@ -316,8 +331,11 @@
     const monthSelect = document.getElementById('monthSelect');
     const dataFrame = document.getElementById('dataFrame');
     const dataFrameContainer = document.getElementById('dataFrameContainer');
+    const openInNewTab = document.getElementById('openInNewTab');
     const resultButton = document.getElementById('resultButton');
     const listButton = document.getElementById('listButton');
+    const buildPreviewUrl = (sheetId) =>
+      `https://docs.google.com/spreadsheets/d/${sheetId}/preview`;
     // --- 기존 링크 데이터는 동일 ---
     // 현황판
      const monthlyLinks = {
@@ -347,7 +365,7 @@
       "2025-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIukDtmgecxuvKRtFG1iRwaWw4mpsf_QhIhlX2FEzmknNsWGC_6wrml9XNbAs2qQbp0_G4NIEPlOoB/pubhtml?widget=true&amp;headers=false",
       "2025-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTY2oql5MhHjEazeTYMsnva-YXinUll7x9a26U5KtVNo7lYtl_V-SklIxQAxRpceegqgMjAkvatgbt4/pubhtml?widget=true&amp;headers=false",
       "2025-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpXXTKYPTzPEa7JHeiccH_7KRQM5p8XKgKdJDrvNP6OBIENYmQLsMSgzsEcZMZVziuOa-s1W1UTNN8/pubhtml?widget=true&amp;headers=false",
-      "2026-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCkW3yuV9b45YHiNHJSvwCusKUR3CRI1VzU7r74uCAZreMoUFMXRca5ygy5q7dGg1wUJTxhAjFK6Z/pubhtml?widget=true&amp;headers=false"
+      "2026-01": buildPreviewUrl("13puxI-TqttU-PXj_AOFlihvh2cENbRGz8ZOPJA7XYwA")
     };
     // 지난 달(신규/첫재등록 데이터)
     const monthlyListLinks = {
@@ -377,7 +395,7 @@
       "2025-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiWcYRjd63ZqecCDxIqmJnBW5eF05RZe1ES6UODdw0lx9CLFONmuUYUZzOgQU3E5aWa31pROKuij2C/pubhtml?widget=true&amp;headers=false",
       "2025-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT88P-DFQAvJNdoUbazN4KkZ-iC4dTxE5T1ugcqnu4oRW1c4hMhNME3JjZuKaiJhQLxik5oNtRkyIjm/pubhtml?widget=true&amp;headers=false",
       "2025-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhLtdJV5fPCJEIJe2vpBNQvuChrMpwuOMfJ27pFT6SNUd5J0V26GXQZY8k3xiQWodU_AAaUluWDSBm/pubhtml?widget=true&amp;headers=false",
-      "2026-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSfnaibIbTg0XC1fqn2H29ck3CA-n0_rGGFweBgiR2Is7Zk7rHo_svH2DM-Cu8iYOBVHMWKGoXzOx7Y/pubhtml?widget=true&amp;headers=false"
+      "2026-01": buildPreviewUrl("1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc")
     };
 
     let isListView = false;
@@ -413,8 +431,10 @@
       const key = `${year}-${month}`;
       const url = isListView ? (monthlyListLinks[key] || '') : (monthlyLinks[key] || '');
       dataFrame.src = url;
+      openInNewTab.href = url || 'about:blank';
+      openInNewTab.style.visibility = url ? 'visible' : 'hidden';
       dataFrame.onload = function() {
-          dataFrame.style.opacity = 1;
+        dataFrame.style.opacity = 1;
       };
     }
 
