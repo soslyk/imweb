@@ -155,7 +155,7 @@
         let allData = [];
 
         const apiOverride = new URLSearchParams(window.location.search).get('api');
-        const API_URL = apiOverride || 'http://api.crossfitpaan.com:3000/api/yearly-members';
+        const API_URL = apiOverride || 'https://api.crossfitpaan.com/api/yearly-members';
 
         function buildApiUrl(selectedYears) {
             const minYear = Math.min(...selectedYears);
