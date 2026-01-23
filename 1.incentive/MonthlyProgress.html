@@ -151,6 +151,17 @@
       text-decoration: none;
     }
 
+    .data-notice {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #FFF7ED;
+      color: #7C2D12;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+    }
+
     /* 모바일 화면용 스타일 (768px 이하) */
     @media screen and (max-width: 768px) {
     .container {
@@ -314,6 +325,7 @@
 
     <div class="dataFrame-container" id="dataFrameContainer">
       <iframe id="dataFrame" frameborder="0"></iframe>
+      <div class="data-notice" id="dataNotice"></div>
       <a class="open-new-tab" id="openInNewTab" target="_blank" rel="noopener noreferrer">새 창으로 열기</a>
     </div>
 
@@ -332,73 +344,19 @@
     const dataFrame = document.getElementById('dataFrame');
     const dataFrameContainer = document.getElementById('dataFrameContainer');
     const openInNewTab = document.getElementById('openInNewTab');
+    const dataNotice = document.getElementById('dataNotice');
     const resultButton = document.getElementById('resultButton');
     const listButton = document.getElementById('listButton');
     const buildPreviewUrl = (sheetId) =>
       `https://docs.google.com/spreadsheets/d/${sheetId}/preview`;
-    // --- 기존 링크 데이터는 동일 ---
-    // 현황판
-     const monthlyLinks = {
-      "2023-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNQn_B_lk_PiYKEn5WCZ2kA7AALZ7Ouw0bPAL-UW0TrSxDLx5-zdXhQQJ5rxnPfiHeO1tA43ZEjnMV/pubhtml?widget=true&amp;headers=false",
-      "2023-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeZ8jxr4RtRSZMj4YzXlwryXJENxpGOaok7IkoLNxt75uNSFm8bQK_tM6kKPn8EykrW2uD5TO3riOm/pubhtml?widget=true&amp;headers=false",
-      "2024-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFiWu8c_1vmp8IYT23v9TK9XcCi7DKLSbwKrtO2PHEngD9CksrOYsG7CBmWRwNui07n2RBPCVv31z7/pubhtml?widget=true&amp;headers=false",
-      "2024-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRtkfx7_fASvJvfL_Si3ODhpJIvoLm5ckTNDVg6ffepGkY7UQ1DtZdcYtFgWyojCuT1TXc43cVlQPBN/pubhtml?widget=true&amp;headers=false",
-      "2024-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8dyBbA_JVZ34mc6kvjaCvIDfrNQHVmuCfN0RKSQPcz3BHJWXMkEG3gjvIq9CMTMRzum-PH3cSpCCo/pubhtml?widget=true&amp;headers=false",
-      "2024-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0WcbPejQcndaKdM33432nzOjyMoQgMPBistLrZJepBIpR9hKZNRXwwbTgLvCgPlBXnK5UI6rxF069/pubhtml?widget=true&amp;headers=false",
-      "2024-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpsWP3TVevEKXvd9Yk2YOgkmOAH1JMkiLWLTw41CDySeZOUxOG9dmDKmnT76_OIhuWG3wCnGa5wrDc/pubhtml?widget=true&amp;headers=false",
-      "2024-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR8HmX09f3bj2NMQR1k9WMKAXc2KQcoLMWqDts1yh9RjbOsJg4BctQRvhO9_4DtA1wa-BeZ2CaCKRwR/pubhtml?widget=true&amp;headers=false",
-      "2024-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkaMfWCIJaSEgDc8LyWmXJWeYtY5gFNdm56gs9pNLXccwOSfra0pCH0rwHQJgPFZDaqEeZbmNrlvgM/pubhtml?widget=true&amp;headers=false",
-      "2024-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQH8pCP8F7mG7eDoFqkArPiXG9daFwchRTEAOs5oMLzBgST9P32J1FOYI-17dE5SXbyPOjIYdUkrnqd/pubhtml?widget=true&amp;headers=false",
-      "2024-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9l8OMZr3B8Zaa-qwAQVMyd4T2_c909BMOsOBu_mTHX1saxwt_5dYVGuUGf5MT9_s-7O3a__EmtMV4/pubhtml?widget=true&amp;headers=false",
-      "2024-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKzdYBHhaK20RXCAk9J_o2hjSd4aVx20Ru9GUqNMX0A7iCbS7gRkRtQCiHWi-uQv6ji9K_E3kbPIjc/pubhtml?widget=true&amp;headers=false",
-      "2024-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTmL9T1aGcJ8-0lXX3BkyHcbT6IWCWRd69t_hndQtnu6UifTaCF-c6lCyUuAQCaEkSO6jJhAritX98-/pubhtml?widget=true&amp;headers=false",
-      "2024-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4SqEZqiZYm18FCd2hBJz0A7eWDbANhk9zZmIB3Xtj5iKavgulnn3DlaJDNQ-L64fYEOOaKcvVaK3o/pubhtml?widget=true&amp;headers=false",
-      "2025-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQqbo988c5qo14CWj026HOP2DhijUKa_ziNhQxVh96M7m5pwVoUDo_qr3F5CGi2Z1szL3eaSWYsmR6C/pubhtml?widget=true&amp;headers=false",
-      "2025-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrT0gLp2oQL0v51tr6q5bS6MGpLMjzKtRYSSc9K6cbITsWWUTLtmIkTGJhPrDWZl844moqdnGPSjiB/pubhtml?widget=true&amp;headers=false",
-      "2025-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT_2xxoxTgNJBXkXNfrOtotOHGpFtDxFRkSA4gaL_OU06AUG-GlOiZVNZsZ8ish-Qb-Mqvox61FpFlN/pubhtml?widget=true&amp;headers=false",
-      "2025-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT69dPrzPbHjZZ2mCJhlbTgTfZaNvw9eqTx-Wv0ytE7wGym3RSx4MjY15qaPS7EZdMpOeT2RZOCP_f4/pubhtml?widget=true&amp;headers=false",
-      "2025-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9pTw9MEjPRPiNmraSGVzeOCwcralP6Sb5hIR5ekT75dmDY3qLHdVaxctdokvDkYZcMFFgM0L5Ojg_/pubhtml?widget=true&amp;headers=false",
-      "2025-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNQTW2MvmCMNRh0RlOWqCC63pjDhyF5ouodIwjVV3Lv8qGVkXanoqJeyHE77SEi-gJzYnyE6J5-6JZ/pubhtml?widget=true&amp;headers=false",
-      "2025-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMVs3mqer4kLeCwD0RWprqxUOsIiNiV2MSIGALgtrL0IW8EK9acCsNIOkBIfFkXfl2dUFM0PvEQ61S/pubhtml?widget=true&amp;headers=false",
-      "2025-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIBCfTRJecT3BH_oYQGAcFX87-7MGqSzd0TvCfns4kOg4H4g9cqcu0sFIG6O8YskF1CnNp86dPM_Ee/pubhtml?widget=true&amp;headers=false",
-      "2025-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXDXAFhH3oVWXYTBqGsgMqrdag9NYZGfh-hsy9sREn5y0bDrJjLZcwCpXZgGEpBlLUW-Dn4E6jzqQE/pubhtml?widget=true&amp;headers=false",
-      "2025-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIukDtmgecxuvKRtFG1iRwaWw4mpsf_QhIhlX2FEzmknNsWGC_6wrml9XNbAs2qQbp0_G4NIEPlOoB/pubhtml?widget=true&amp;headers=false",
-      "2025-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTY2oql5MhHjEazeTYMsnva-YXinUll7x9a26U5KtVNo7lYtl_V-SklIxQAxRpceegqgMjAkvatgbt4/pubhtml?widget=true&amp;headers=false",
-      "2025-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpXXTKYPTzPEa7JHeiccH_7KRQM5p8XKgKdJDrvNP6OBIENYmQLsMSgzsEcZMZVziuOa-s1W1UTNN8/pubhtml?widget=true&amp;headers=false",
-      "2026-01": buildPreviewUrl("13puxI-TqttU-PXj_AOFlihvh2cENbRGz8ZOPJA7XYwA")
-    };
-    // 지난 달(신규/첫재등록 데이터)
-    const monthlyListLinks = {
-      "2023-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNQn_B_lk_PiYKEn5WCZ2kA7AALZ7Ouw0bPAL-UW0TrSxDLx5-zdXhQQJ5rxnPfiHeO1tA43ZEjnMV/pubhtml?widget=true&amp;headers=false",
-      "2023-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTeZ8jxr4RtRSZMj4YzXlwryXJENxpGOaok7IkoLNxt75uNSFm8bQK_tM6kKPn8EykrW2uD5TO3riOm/pubhtml?widget=true&amp;headers=false",
-      "2024-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqashaYOVtvxxoW4VUcTDBBusFuJt5MQEoBDwKDtNY4nB0aMhidTuPCe0DQLfiHnGpC6yKOasAK5et/pubhtml?widget=true&amp;headers=false",
-      "2024-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRdLnMAQ3SVR28Lw1BijmxRAIWklHI0CqaojR-fF8NTf1s11Hx6jVv78Fu5pToyV4Eh9o_sf8ZagCfl/pubhtml?widget=true&amp;headers=false",
-      "2024-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNLwkxx36Naa5LIGBb_dxgAPw7eJ1vE0ov3uBM_LAExB2LebQXN8IuW0tRaXTr2Y5dt7g-fpwlPxzb/pubhtml?widget=true&amp;headers=false",
-      "2024-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT9RmIw4X58MJZ7LJi7lNLbYauVy4USxKR5hDcBlSRC3PPWk6WQpO7ZNjbRbHagc1Mgv30MufeQniuE/pubhtml?widget=true&amp;headers=false",
-      "2024-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaLwv0Bm31IyeIlcTvw6Merbz8X4lkxpZZQZKS3nDjocKt7up7QfgpwZ70d1TSAI9UfHr80fNaOVcp/pubhtml?widget=true&amp;headers=false",
-      "2024-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVDkrTCuCKVDfX1mzDMGvskknh-bgec6B5nxy7mERIReNI2XEPt3CfydhebzNvRPNX3jkpy8Slrwy9/pubhtml?widget=true&amp;headers=false",
-      "2024-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRWKu1Pg5rPzTl-5CVGbfUSbBXp3M3omIoBU1pEAZlI8rDOHBKqgQV6DAAnI_qWlOiKYRkSKrQ438o/pubhtml?widget=true&amp;headers=false",
-      "2024-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0xVObazquQyKhpWKTEnM8t8SyYho-c0EOJp_41A_U9-qN_n0mOhfdQX_4UxhZyXytTkn7KGSjNilc/pubhtml?widget=true&amp;headers=false",
-      "2024-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTje6Qf_tN9-dy-PliaACnC0NxDVBmy_1XfvBSlpjyCE1Jd_byN5X63de5dlMV82eaIvZ9tZF8HebTB/pubhtml?widget=true&amp;headers=false",
-      "2024-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxoGKHP9fpx-UuWEQYA4ULWXu5S7REKPqjpYrfFbu90CyPPOZ-4kAZMIpiam0VhxCUYYLvIo-MI8yW/pubhtml?widget=true&amp;headers=false",
-      "2024-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSte6F3udcfpgUC5uA06Lc_g_kmYUSw64UbRBHXEF4S3Bm9po1OHEqr8xfXX66NhXMz-yVaXTjVt0nB/pubhtml?widget=true&amp;headers=false",
-      "2024-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNkKwrGrydOT0c1Opm8T8XhwhVLPpc2f5cLG9b4yjVFv-5BlgMjQviFFG38PUeLCYXCja6TlMjz45m/pubhtml?widget=true&amp;headers=false",
-      "2025-01": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwj4r-yY3HUpZTpe8uRh4hRTSejR7kf3Jp5ORqhLqqJGclChV42LI8o5o_-oEI_IDuescTCsd4rbn3/pubhtml?widget=true&amp;headers=false",
-      "2025-02": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZpCOUSntOdYEWK0Uf0DnVtd7V03FQa4dqmX9GSdMqbs3YizxGsGvyfpRP-6nN9kuMVcsODTWMK6ri/pubhtml?widget=true&amp;headers=false",
-      "2025-03": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRw5QFm9NDjnz2Qsa55gc7onS7hUJYogVsix1OOz5MLf5hzWCtYrkUQyQrKUok4KifdaV6oUxMyT-NT/pubhtml?widget=true&amp;headers=false",
-      "2025-04": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSdUPGcQ6umFsboaFmCENwXy5kDSxJU6J7jARdE3xBgd6TyKE_dyLWFlV7xja4FdR_cAd6ZHesk41iH/pubhtml?widget=true&amp;headers=false",
-      "2025-05": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIvOJHkCD0iYxxazgN97Y2rv5RnMkomvifW_jVJlL32126Jozj-TYyLszNHCV9fLupucOPrhymw6on/pubhtml?widget=true&amp;headers=false",
-      "2025-06": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTT6p9vAd8NPOoeY1ly-OXKxnF5IPqxuDXSYbjgvEVBz3uXy_wuQgqaM3ElHvw4mZ84EQB84aVAnlH1/pubhtml?widget=true&amp;headers=false",
-      "2025-07": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZxvjGKxO91Az7MYzXUIhjlKxVWuz6FQUymxLpsHI_XGTvDMeGnYfB9_voYJtNufPivf-3jFV6pVJC/pubhtml?widget=true&amp;headers=false",
-      "2025-08": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7eM6pfw4h2EzcBhThndqFWIT9BV-UNySkeKB4lq5iQb47GyyOeWoW4AHC446tGSGnFoG-9ns7zN-F/pubhtml?widget=true&amp;headers=false",
-      "2025-09": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxBztlSNhUeK2OyfUpwW-44NaWHxKmy0V6lPpFpguPpi1EyJZIBJY8XNxTZoPhZy-v9hHocekqj1k6/pubhtml?widget=true&amp;headers=false",
-      "2025-10": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiWcYRjd63ZqecCDxIqmJnBW5eF05RZe1ES6UODdw0lx9CLFONmuUYUZzOgQU3E5aWa31pROKuij2C/pubhtml?widget=true&amp;headers=false",
-      "2025-11": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT88P-DFQAvJNdoUbazN4KkZ-iC4dTxE5T1ugcqnu4oRW1c4hMhNME3JjZuKaiJhQLxik5oNtRkyIjm/pubhtml?widget=true&amp;headers=false",
-      "2025-12": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhLtdJV5fPCJEIJe2vpBNQvuChrMpwuOMfJ27pFT6SNUd5J0V26GXQZY8k3xiQWodU_AAaUluWDSBm/pubhtml?widget=true&amp;headers=false",
-      "2026-01": buildPreviewUrl("1FAOOzBLL423ofKmuIMWtpzUs4wQfZXNLwG-WGf_MhXc")
-    };
+    const API_BASE = 'http://192.168.0.4:3000';
+    const INDEX_ENDPOINT = `${API_BASE}/api/monthly-progress-index`;
+    const monthLabel = (value) => `${Number(value)}월`;
 
     let isListView = false;
+    let indexByKey = {};
+    let monthsByYear = {};
+    let availableYears = [];
 
     // 현재 연도와 현재 달 계산
     const now = new Date();
@@ -407,44 +365,113 @@
     const defaultYear = now.getFullYear();
     const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
 
-    // 연도 & 월 옵션 설정 (2023~2026)
-    for (let i = 2023; i <= 2026; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `${i}년`;
-      yearSelect.appendChild(option);
+    function setNotice(text) {
+      if (!text) {
+        dataNotice.style.display = 'none';
+        dataNotice.textContent = '';
+        return;
+      }
+      dataNotice.textContent = text;
+      dataNotice.style.display = 'block';
     }
 
-    for (let i = 1; i <= 12; i++) {
-      const option = document.createElement('option');
-      const monthValue = String(i).padStart(2, '0');
-      option.value = monthValue;
-      option.textContent = `${i}월`;
-      monthSelect.appendChild(option);
+    function buildYearOptions(years) {
+      yearSelect.innerHTML = '';
+      years.forEach((year) => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = `${year}년`;
+        yearSelect.appendChild(option);
+      });
     }
 
-    // 기본 선택값을 현재 달로 설정
-    yearSelect.value = defaultYear;
-    monthSelect.value = defaultMonth;
+    function buildMonthOptions(months) {
+      monthSelect.innerHTML = '';
+      months.forEach((month) => {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = monthLabel(month);
+        monthSelect.appendChild(option);
+      });
+    }
+
+    function getLatestSelection() {
+      if (availableYears.length === 0) {
+        return { year: defaultYear, month: defaultMonth };
+      }
+      const year = availableYears[availableYears.length - 1];
+      const months = monthsByYear[year] || [];
+      const month = months.length ? months[months.length - 1] : defaultMonth;
+      return { year, month };
+    }
+
+    function applyDefaultSelection() {
+      const currentYear = String(defaultYear);
+      const currentMonth = String(defaultMonth);
+      const hasYear = availableYears.includes(currentYear);
+      const year = hasYear ? currentYear : getLatestSelection().year;
+      const months = monthsByYear[year] || [];
+      const month = months.includes(currentMonth) ? currentMonth : getLatestSelection().month;
+      yearSelect.value = year;
+      buildMonthOptions(months.length ? months : [currentMonth]);
+      monthSelect.value = month;
+    }
+
+    function buildIndexOptions(entries) {
+      monthsByYear = {};
+      entries.forEach(({ year, month }) => {
+        if (!monthsByYear[year]) monthsByYear[year] = new Set();
+        monthsByYear[year].add(month);
+      });
+      availableYears = Object.keys(monthsByYear).sort();
+      availableYears.forEach((year) => {
+        monthsByYear[year] = Array.from(monthsByYear[year]).sort();
+      });
+      buildYearOptions(availableYears);
+      applyDefaultSelection();
+    }
 
     function updateFrameLink(year, month) {
       const key = `${year}-${month}`;
-      const url = isListView ? (monthlyListLinks[key] || '') : (monthlyLinks[key] || '');
+      const entry = indexByKey[key] || {};
+      const sheetId = isListView ? entry.list : entry.status;
+      const url = sheetId ? buildPreviewUrl(sheetId) : '';
       dataFrame.src = url;
       openInNewTab.href = url || 'about:blank';
       openInNewTab.style.visibility = url ? 'visible' : 'hidden';
+      setNotice(url ? '' : '해당 월 데이터가 없습니다.');
       dataFrame.onload = function() {
         dataFrame.style.opacity = 1;
       };
     }
 
-    // 페이지 로드 시 현재 설정된 연/월 데이터 로드
-    function loadInitialData() {
+    async function loadInitialData() {
+      setNotice('데이터를 불러오는 중입니다...');
+      try {
+        const response = await fetch(INDEX_ENDPOINT, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`status ${response.status}`);
+        }
+        const payload = await response.json();
+        if (!payload.ok) {
+          throw new Error('payload not ok');
+        }
+        indexByKey = payload.byKey || {};
+        buildIndexOptions(payload.entries || []);
+        setNotice('');
+      } catch (error) {
+        setNotice('데이터 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
       updateFrameLink(yearSelect.value, monthSelect.value);
     }
 
     // 연도/월 선택 이벤트
     yearSelect.addEventListener('change', () => {
+      const months = monthsByYear[yearSelect.value] || [];
+      if (months.length) {
+        buildMonthOptions(months);
+        monthSelect.value = months[months.length - 1];
+      }
       updateFrameLink(yearSelect.value, monthSelect.value);
     });
 
