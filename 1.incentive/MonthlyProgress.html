@@ -342,7 +342,6 @@
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const dataFrame = document.getElementById('dataFrame');
-    const dataFrameContainer = document.getElementById('dataFrameContainer');
     const openInNewTab = document.getElementById('openInNewTab');
     const dataNotice = document.getElementById('dataNotice');
     const resultButton = document.getElementById('resultButton');
@@ -364,6 +363,11 @@
     // 현재 날짜 기준으로 기본값 설정
     const defaultYear = now.getFullYear();
     const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+
+    function setSelectEnabled(enabled) {
+      yearSelect.disabled = !enabled;
+      monthSelect.disabled = !enabled;
+    }
 
     function setNotice(text) {
       if (!text) {
@@ -418,6 +422,12 @@
     }
 
     function buildIndexOptions(entries) {
+      if (!entries.length) {
+        yearSelect.innerHTML = '';
+        monthSelect.innerHTML = '';
+        setSelectEnabled(false);
+        return;
+      }
       monthsByYear = {};
       entries.forEach(({ year, month }) => {
         if (!monthsByYear[year]) monthsByYear[year] = new Set();
@@ -428,10 +438,18 @@
         monthsByYear[year] = Array.from(monthsByYear[year]).sort();
       });
       buildYearOptions(availableYears);
+      setSelectEnabled(true);
       applyDefaultSelection();
     }
 
     function updateFrameLink(year, month) {
+      if (!year || !month) {
+        dataFrame.src = '';
+        openInNewTab.href = 'about:blank';
+        openInNewTab.style.visibility = 'hidden';
+        setNotice('표시할 데이터가 없습니다.');
+        return;
+      }
       const key = `${year}-${month}`;
       const entry = indexByKey[key] || {};
       const sheetId = isListView ? entry.list : entry.status;
@@ -457,10 +475,17 @@
           throw new Error('payload not ok');
         }
         indexByKey = payload.byKey || {};
-        buildIndexOptions(payload.entries || []);
+        const entries = payload.entries || [];
+        buildIndexOptions(entries);
+        if (!entries.length) {
+          setNotice('데이터가 없습니다. 인덱스 시트를 확인해주세요.');
+          updateFrameLink('', '');
+          return;
+        }
         setNotice('');
       } catch (error) {
         setNotice('데이터 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        setSelectEnabled(false);
       }
       updateFrameLink(yearSelect.value, monthSelect.value);
     }
