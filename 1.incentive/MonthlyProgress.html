@@ -162,6 +162,48 @@
       display: none;
     }
 
+    .mobile-table-container {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .mobile-table-section {
+      margin-bottom: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .mobile-table-title {
+      padding: 10px 12px;
+      background: var(--gray-100);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-700);
+    }
+
+    .mobile-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .mobile-table th,
+    .mobile-table td {
+      border: 1px solid var(--gray-200);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    .mobile-table th {
+      background: var(--gray-100);
+      font-weight: 600;
+    }
+
     /* 모바일 화면용 스타일 (768px 이하) */
     @media screen and (max-width: 768px) {
     .container {
@@ -216,6 +258,10 @@
       border-width: 1px;
       border-radius: 8px; /* 모바일에서 모서리 둥글기 줄이기 (선택 사항) */
       }
+
+    .mobile-table-container {
+      display: block;
+    }
 
       /* 모바일 피커 관련 스타일은 그대로 유지 */
     .mobile-picker-container {
@@ -324,6 +370,7 @@
     </div>
 
     <div class="dataFrame-container" id="dataFrameContainer">
+      <div class="mobile-table-container" id="mobileTableContainer"></div>
       <iframe id="dataFrame" frameborder="0"></iframe>
       <div class="data-notice" id="dataNotice"></div>
       <a class="open-new-tab" id="openInNewTab" target="_blank" rel="noopener noreferrer">새 창으로 열기</a>
@@ -342,6 +389,7 @@
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const dataFrame = document.getElementById('dataFrame');
+    const mobileTableContainer = document.getElementById('mobileTableContainer');
     const openInNewTab = document.getElementById('openInNewTab');
     const dataNotice = document.getElementById('dataNotice');
     const resultButton = document.getElementById('resultButton');
@@ -351,7 +399,11 @@
     const API_BASE = 'https://api.crossfitpaan.com';
     const API_KEY = 'zQHiH3SJ6aMAk3FXHID5iRIKQfXxmr5qOVpp2S12rAg';
     const INDEX_ENDPOINT = `${API_BASE}/api/monthly-progress-index`;
+    const VALUES_ENDPOINT = `${API_BASE}/api/sheet-values`;
     const monthLabel = (value) => `${Number(value)}월`;
+    const STATUS_RANGE = 'A:V50';
+    const LIST_RANGE = 'A:T50';
+    const LIST_SHEETS = ['[상무점]', '[신창점]', '[오치점]', '[본촌점]'];
 
     let isListView = false;
     let indexByKey = {};
@@ -378,6 +430,68 @@
       }
       dataNotice.textContent = text;
       dataNotice.style.display = 'block';
+    }
+
+    function isMobileView() {
+      return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function clearMobileTable() {
+      mobileTableContainer.innerHTML = '';
+    }
+
+    function buildTable(values) {
+      if (!values || values.length === 0) {
+        return '<div class="mobile-table-section"><div class="mobile-table-title">데이터가 없습니다.</div></div>';
+      }
+      const headers = values[0] || [];
+      const rows = values.slice(1);
+      const headerCells = headers.map((cell) => `<th>${cell ?? ''}</th>`).join('');
+      const bodyRows = rows.map((row) => {
+        const cells = headers.map((_, idx) => `<td>${row[idx] ?? ''}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      return `<table class="mobile-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+    }
+
+    async function fetchSheetValues(sheetId, range, sheetName = '') {
+      const params = new URLSearchParams({ sheetId, range });
+      if (sheetName) params.set('sheetName', sheetName);
+      const response = await fetch(`${VALUES_ENDPOINT}?${params.toString()}`, {
+        cache: 'no-store',
+        headers: { 'x-api-key': API_KEY },
+      });
+      if (!response.ok) throw new Error(`sheet fetch ${response.status}`);
+      const payload = await response.json();
+      if (!payload.ok) throw new Error('sheet payload not ok');
+      return payload.values || [];
+    }
+
+    async function renderMobileTables(sheetId, isList) {
+      clearMobileTable();
+      if (!sheetId) {
+        setNotice('해당 월 데이터가 없습니다.');
+        return;
+      }
+      try {
+        if (!isList) {
+          const values = await fetchSheetValues(sheetId, STATUS_RANGE);
+          mobileTableContainer.innerHTML = `<div class="mobile-table-section">${buildTable(values)}</div>`;
+          setNotice('');
+          return;
+        }
+        const sections = [];
+        for (const sheetName of LIST_SHEETS) {
+          const values = await fetchSheetValues(sheetId, LIST_RANGE, sheetName);
+          sections.push(
+            `<div class="mobile-table-section"><div class="mobile-table-title">${sheetName}</div>${buildTable(values)}</div>`
+          );
+        }
+        mobileTableContainer.innerHTML = sections.join('');
+        setNotice('');
+      } catch (error) {
+        setNotice('데이터 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
     }
 
     function buildYearOptions(years) {
@@ -449,12 +563,20 @@
         openInNewTab.href = 'about:blank';
         openInNewTab.style.visibility = 'hidden';
         setNotice('표시할 데이터가 없습니다.');
+        clearMobileTable();
         return;
       }
       const key = `${year}-${month}`;
       const entry = indexByKey[key] || {};
       const sheetId = isListView ? entry.list : entry.status;
       const url = sheetId ? buildPreviewUrl(sheetId) : '';
+      if (isMobileView()) {
+        dataFrame.style.display = 'none';
+        openInNewTab.style.visibility = 'hidden';
+        renderMobileTables(sheetId, isListView);
+        return;
+      }
+      dataFrame.style.display = 'block';
       dataFrame.src = url;
       openInNewTab.href = url || 'about:blank';
       openInNewTab.style.visibility = url ? 'visible' : 'hidden';
