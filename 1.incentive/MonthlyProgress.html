@@ -401,8 +401,8 @@
     const INDEX_ENDPOINT = `${API_BASE}/api/monthly-progress-index`;
     const VALUES_ENDPOINT = `${API_BASE}/api/sheet-values`;
     const monthLabel = (value) => `${Number(value)}월`;
-    const STATUS_RANGE = 'A:V50';
-    const LIST_RANGE = 'A:T50';
+    const STATUS_RANGE = 'A1:V50';
+    const LIST_RANGE = 'A1:T50';
     const LIST_SHEETS = ['[상무점]', '[신창점]', '[오치점]', '[본촌점]'];
 
     let isListView = false;
@@ -572,7 +572,7 @@
       const url = sheetId ? buildPreviewUrl(sheetId) : '';
       if (isMobileView()) {
         dataFrame.style.display = 'none';
-        openInNewTab.style.visibility = 'hidden';
+        openInNewTab.style.visibility = url ? 'visible' : 'hidden';
         renderMobileTables(sheetId, isListView);
         return;
       }
