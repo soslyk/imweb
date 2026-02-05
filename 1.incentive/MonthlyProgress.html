@@ -190,6 +190,12 @@
       box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
     }
 
+    .mobile-card.accent-purple { border-color: #C4B5FD; box-shadow: 0 8px 18px rgba(124, 58, 237, 0.12); }
+    .mobile-card.accent-green { border-color: #86EFAC; box-shadow: 0 8px 18px rgba(16, 185, 129, 0.12); }
+    .mobile-card.accent-blue { border-color: #93C5FD; box-shadow: 0 8px 18px rgba(59, 130, 246, 0.12); }
+    .mobile-card.accent-amber { border-color: #FCD34D; box-shadow: 0 8px 18px rgba(245, 158, 11, 0.12); }
+    .mobile-card.accent-sky { border-color: #7DD3FC; box-shadow: 0 8px 18px rgba(14, 165, 233, 0.12); }
+
     .mobile-card-title {
       font-size: 14px;
       font-weight: 700;
@@ -197,27 +203,26 @@
       margin-bottom: 8px;
     }
 
-    .mobile-metric-row {
+    .mobile-metric {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 6px 10px;
+      gap: 8px;
       align-items: center;
-      padding: 6px 0;
+      padding: 10px 0;
       border-bottom: 1px dashed var(--gray-200);
-      font-size: 12px;
     }
 
-    .mobile-metric-row:last-child {
-      border-bottom: none;
-    }
+    .mobile-metric:last-child { border-bottom: none; }
 
     .mobile-metric-label {
-      font-weight: 600;
+      font-weight: 700;
       color: var(--gray-700);
+      font-size: 13px;
     }
 
-    .mobile-metric-value {
-      font-weight: 700;
+    .mobile-metric-rate {
+      font-size: 18px;
+      font-weight: 800;
       color: var(--gray-700);
     }
 
@@ -579,16 +584,16 @@
         if (String(subLabel).includes('등록')) entry.enrolled = subValue;
       });
       const cards = Array.from(map.values()).map((item) => `
-        <div class="mobile-metric-row">
+        <div class="mobile-metric">
           <div class="mobile-metric-label">${item.label}</div>
-          <div class="mobile-metric-value">${item.rate}</div>
+          <div class="mobile-metric-rate">${item.rate}</div>
           <div class="mobile-metric-sub">
             <span>대상 ${item.target || '-'}</span>
             <span>등록 ${item.enrolled || '-'}</span>
           </div>
         </div>
       `).join('');
-      return `<div class="mobile-card"><div class="mobile-card-title">전지점 등록률</div>${cards}</div>`;
+      return `<div class="mobile-card accent-purple"><div class="mobile-card-title">전지점 등록률</div>${cards}</div>`;
     }
 
     function buildBranchCards(values) {
@@ -616,12 +621,13 @@
         });
         if (!title) title = `지점 ${b + 1}`;
         const content = items.map((item) => `
-          <div class="mobile-metric-row">
+          <div class="mobile-metric">
             <div class="mobile-metric-label">${item.label}</div>
-            <div class="mobile-metric-value">${item.value}</div>
+            <div class="mobile-metric-rate">${item.value}</div>
           </div>
         `).join('');
-        blocks.push(`<div class="mobile-card"><div class="mobile-card-title">${title}</div>${content}</div>`);
+        const accentClass = b % 4 === 0 ? 'accent-green' : b % 4 === 1 ? 'accent-blue' : b % 4 === 2 ? 'accent-amber' : 'accent-sky';
+        blocks.push(`<div class="mobile-card ${accentClass}"><div class="mobile-card-title">${title}</div>${content}</div>`);
       }
       return `<div class="mobile-card-grid">${blocks.join('')}</div>`;
     }
