@@ -349,6 +349,7 @@
     const buildPreviewUrl = (sheetId) =>
       `https://docs.google.com/spreadsheets/d/${sheetId}/preview`;
     const API_BASE = 'https://api.crossfitpaan.com';
+    const API_KEY = 'REPLACE_WITH_MP_API_KEY';
     const INDEX_ENDPOINT = `${API_BASE}/api/monthly-progress-index`;
     const monthLabel = (value) => `${Number(value)}월`;
 
@@ -466,7 +467,12 @@
     async function loadInitialData() {
       setNotice('데이터를 불러오는 중입니다...');
       try {
-        const response = await fetch(INDEX_ENDPOINT, { cache: 'no-store' });
+        const response = await fetch(INDEX_ENDPOINT, {
+          cache: 'no-store',
+          headers: {
+            'x-api-key': API_KEY,
+          },
+        });
         if (!response.ok) {
           throw new Error(`status ${response.status}`);
         }
