@@ -176,6 +176,12 @@
       background: var(--white);
     }
 
+    .mobile-card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
     .mobile-table-title {
       padding: 10px 12px;
       background: var(--gray-100);
@@ -202,6 +208,32 @@
     .mobile-table th {
       background: var(--gray-100);
       font-weight: 600;
+    }
+
+    .mobile-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 0 12px;
+      margin-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-tab {
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-700);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .mobile-tab.active {
+      background: var(--violet-purple);
+      color: var(--white);
+      border-color: var(--violet-purple);
     }
 
     /* 모바일 화면용 스타일 (768px 이하) */
@@ -401,8 +433,11 @@
     const INDEX_ENDPOINT = `${API_BASE}/api/monthly-progress-index`;
     const VALUES_ENDPOINT = `${API_BASE}/api/sheet-values`;
     const monthLabel = (value) => `${Number(value)}월`;
-    const STATUS_RANGE = 'A1:V50';
-    const LIST_RANGE = 'A1:T50';
+    const STATUS_OVERALL_RANGE = 'B1:E15';
+    const STATUS_BRANCH_RANGE = 'G1:V28';
+    const STATUS_RANK_RANGE = 'A16:E49';
+    const LIST_LEFT_RANGE = 'A1:I50';
+    const LIST_RIGHT_RANGE = 'J1:R50';
     const LIST_SHEETS = ['[상무점]', '[신창점]', '[오치점]', '[본촌점]'];
 
     let isListView = false;
@@ -467,27 +502,85 @@
       return payload.values || [];
     }
 
-    async function renderMobileTables(sheetId, isList) {
+    function renderTabs(activeName) {
+      const buttons = LIST_SHEETS.map((name) => {
+        const isActive = name === activeName;
+        return `<button class="mobile-tab ${isActive ? 'active' : ''}" data-sheet="${name}">${name}</button>`;
+      }).join('');
+      return `<div class="mobile-tabs">${buttons}</div>`;
+    }
+
+    async function renderStatusMobile(sheetId) {
       clearMobileTable();
       if (!sheetId) {
         setNotice('해당 월 데이터가 없습니다.');
         return;
       }
       try {
-        if (!isList) {
-          const values = await fetchSheetValues(sheetId, STATUS_RANGE);
-          mobileTableContainer.innerHTML = `<div class="mobile-table-section">${buildTable(values)}</div>`;
-          setNotice('');
-          return;
+        const [overall, branch, rank] = await Promise.all([
+          fetchSheetValues(sheetId, STATUS_OVERALL_RANGE),
+          fetchSheetValues(sheetId, STATUS_BRANCH_RANGE),
+          fetchSheetValues(sheetId, STATUS_RANK_RANGE),
+        ]);
+        mobileTableContainer.innerHTML = `
+          <div class="mobile-card-grid">
+            <div class="mobile-table-section">
+              <div class="mobile-table-title">전지점 등록률</div>
+              ${buildTable(overall)}
+            </div>
+            <div class="mobile-table-section">
+              <div class="mobile-table-title">지점별 등록률</div>
+              ${buildTable(branch)}
+            </div>
+            <div class="mobile-table-section">
+              <div class="mobile-table-title">개인 등록률 순위</div>
+              ${buildTable(rank)}
+            </div>
+          </div>`;
+        setNotice('');
+      } catch (error) {
+        setNotice('데이터 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
+
+    let listCache = {};
+    let lastMobileSheetKey = '';
+
+    async function renderListMobile(sheetId, sheetName) {
+      clearMobileTable();
+      if (!sheetId) {
+        setNotice('해당 월 데이터가 없습니다.');
+        return;
+      }
+      const activeName = sheetName || LIST_SHEETS[0];
+      try {
+        if (!listCache[activeName]) {
+          const [leftValues, rightValues] = await Promise.all([
+            fetchSheetValues(sheetId, LIST_LEFT_RANGE, activeName),
+            fetchSheetValues(sheetId, LIST_RIGHT_RANGE, activeName),
+          ]);
+          listCache[activeName] = { leftValues, rightValues };
         }
-        const sections = [];
-        for (const sheetName of LIST_SHEETS) {
-          const values = await fetchSheetValues(sheetId, LIST_RANGE, sheetName);
-          sections.push(
-            `<div class="mobile-table-section"><div class="mobile-table-title">${sheetName}</div>${buildTable(values)}</div>`
-          );
-        }
-        mobileTableContainer.innerHTML = sections.join('');
+        const { leftValues, rightValues } = listCache[activeName];
+        mobileTableContainer.innerHTML = `
+          ${renderTabs(activeName)}
+          <div class="mobile-card-grid">
+            <div class="mobile-table-section">
+              <div class="mobile-table-title">${activeName} 신규등록 체크</div>
+              ${buildTable(leftValues)}
+            </div>
+            <div class="mobile-table-section">
+              <div class="mobile-table-title">${activeName} 재등록 체크</div>
+              ${buildTable(rightValues)}
+            </div>
+          </div>`;
+        const tabs = mobileTableContainer.querySelectorAll('.mobile-tab');
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const nextName = tab.getAttribute('data-sheet');
+            renderListMobile(sheetId, nextName);
+          });
+        });
         setNotice('');
       } catch (error) {
         setNotice('데이터 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
@@ -571,9 +664,18 @@
       const sheetId = isListView ? entry.list : entry.status;
       const url = sheetId ? buildPreviewUrl(sheetId) : '';
       if (isMobileView()) {
+        const mobileKey = `${key}-${isListView ? 'list' : 'status'}`;
+        if (mobileKey !== lastMobileSheetKey) {
+          listCache = {};
+          lastMobileSheetKey = mobileKey;
+        }
         dataFrame.style.display = 'none';
         openInNewTab.style.visibility = url ? 'visible' : 'hidden';
-        renderMobileTables(sheetId, isListView);
+        if (isListView) {
+          renderListMobile(sheetId);
+        } else {
+          renderStatusMobile(sheetId);
+        }
         return;
       }
       dataFrame.style.display = 'block';
