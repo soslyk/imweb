@@ -182,6 +182,75 @@
       gap: 12px;
     }
 
+    .mobile-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .mobile-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin-bottom: 8px;
+    }
+
+    .mobile-metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 10px;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--gray-200);
+      font-size: 12px;
+    }
+
+    .mobile-metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .mobile-metric-label {
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .mobile-metric-value {
+      font-weight: 700;
+      color: var(--gray-700);
+    }
+
+    .mobile-metric-sub {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      color: var(--gray-600);
+      font-size: 11px;
+    }
+
+    .mobile-rank-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mobile-rank-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .mobile-rank-name {
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .mobile-rank-meta {
+      color: var(--gray-600);
+    }
+
     .mobile-table-title {
       padding: 10px 12px;
       background: var(--gray-100);
@@ -489,6 +558,94 @@
       return `<table class="mobile-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
     }
 
+    function buildOverallCards(values) {
+      if (!values || values.length <= 1) {
+        return '<div class="mobile-card"><div class="mobile-card-title">전지점 등록률</div>데이터가 없습니다.</div>';
+      }
+      const rows = values.slice(1);
+      const map = new Map();
+      rows.forEach((row) => {
+        const label = row[0];
+        if (!label) return;
+        const rate = row[1] ?? '';
+        const subLabel = row[2] ?? '';
+        const subValue = row[3] ?? '';
+        if (!map.has(label)) {
+          map.set(label, { label, rate: rate || '', target: '', enrolled: '' });
+        }
+        const entry = map.get(label);
+        if (rate) entry.rate = rate;
+        if (String(subLabel).includes('대상')) entry.target = subValue;
+        if (String(subLabel).includes('등록')) entry.enrolled = subValue;
+      });
+      const cards = Array.from(map.values()).map((item) => `
+        <div class="mobile-metric-row">
+          <div class="mobile-metric-label">${item.label}</div>
+          <div class="mobile-metric-value">${item.rate}</div>
+          <div class="mobile-metric-sub">
+            <span>대상 ${item.target || '-'}</span>
+            <span>등록 ${item.enrolled || '-'}</span>
+          </div>
+        </div>
+      `).join('');
+      return `<div class="mobile-card"><div class="mobile-card-title">전지점 등록률</div>${cards}</div>`;
+    }
+
+    function buildBranchCards(values) {
+      if (!values || values.length === 0) {
+        return '<div class="mobile-card"><div class="mobile-card-title">지점별 등록률</div>데이터가 없습니다.</div>';
+      }
+      const colCount = values[0].length;
+      const blockCount = Math.floor(colCount / 4);
+      const blocks = [];
+      for (let b = 0; b < blockCount; b += 1) {
+        const base = b * 4;
+        let title = '';
+        for (let r = 0; r < Math.min(values.length, 3); r += 1) {
+          const candidate = values[r][base];
+          if (candidate) { title = candidate; break; }
+        }
+        const items = [];
+        values.forEach((row) => {
+          const label1 = row[base];
+          const value1 = row[base + 1];
+          const label2 = row[base + 2];
+          const value2 = row[base + 3];
+          if (label1 && value1 !== undefined && value1 !== '') items.push({ label: label1, value: value1 });
+          if (label2 && value2 !== undefined && value2 !== '') items.push({ label: label2, value: value2 });
+        });
+        if (!title) title = `지점 ${b + 1}`;
+        const content = items.map((item) => `
+          <div class="mobile-metric-row">
+            <div class="mobile-metric-label">${item.label}</div>
+            <div class="mobile-metric-value">${item.value}</div>
+          </div>
+        `).join('');
+        blocks.push(`<div class="mobile-card"><div class="mobile-card-title">${title}</div>${content}</div>`);
+      }
+      return `<div class="mobile-card-grid">${blocks.join('')}</div>`;
+    }
+
+    function buildRankCard(values, title, startIndex) {
+      const rows = values.slice(startIndex + 1, startIndex + 11);
+      const items = rows.map((row) => ({
+        rank: row[0],
+        name: row[1],
+        rate: row[2],
+        count: row[3],
+      })).filter((item) => item.rank || item.name);
+      if (!items.length) {
+        return `<div class="mobile-card"><div class="mobile-card-title">${title}</div>데이터가 없습니다.</div>`;
+      }
+      const list = items.map((item) => `
+        <div class="mobile-rank-item">
+          <div class="mobile-rank-name">${item.rank}. ${item.name}</div>
+          <div class="mobile-rank-meta">${item.rate || '-'} · ${item.count || '-'}</div>
+        </div>
+      `).join('');
+      return `<div class="mobile-card"><div class="mobile-card-title">${title}</div><div class="mobile-rank-list">${list}</div></div>`;
+    }
+
     async function fetchSheetValues(sheetId, range, sheetName = '') {
       const params = new URLSearchParams({ sheetId, range });
       if (sheetName) params.set('sheetName', sheetName);
@@ -523,19 +680,12 @@
           fetchSheetValues(sheetId, STATUS_RANK_RANGE),
         ]);
         mobileTableContainer.innerHTML = `
+          ${buildOverallCards(overall)}
+          ${buildBranchCards(branch)}
           <div class="mobile-card-grid">
-            <div class="mobile-table-section">
-              <div class="mobile-table-title">전지점 등록률</div>
-              ${buildTable(overall)}
-            </div>
-            <div class="mobile-table-section">
-              <div class="mobile-table-title">지점별 등록률</div>
-              ${buildTable(branch)}
-            </div>
-            <div class="mobile-table-section">
-              <div class="mobile-table-title">개인 등록률 순위</div>
-              ${buildTable(rank)}
-            </div>
+            ${buildRankCard(rank, '종합등록률 순위', 1)}
+            ${buildRankCard(rank, '첫재등록률 순위', 12)}
+            ${buildRankCard(rank, '신규등록률 순위', 23)}
           </div>`;
         setNotice('');
       } catch (error) {
